@@ -5,18 +5,20 @@ import SDL_image._
 import SDL_image_extras._
 
 
-
+/**
+ * Entity database record
+ */
 class Entity (
-    val id: Int,                    /* Unique sequential id */
-    val name: String,               /* Display name */
-    val active: Boolean,            /* In use */
-    val actor: Actor,             /* Actor Id */
-    val category: Category,       /* Actor Category */
+    val id: Int,                        /* Unique sequential id */
+    val name: String,                   /* Display name */
+    val active: Boolean,                /* In use */
+    val actor: Actor,                   /* Actor Id */
+    val category: Category,             /* Category */
     val position: Point2d,              /* Position on screen */
     val bounds: Rectangle,              /* Collision bounds */
     val sprite: Sprite,                 /* Sprite */
     val scale: Vector2d,                /* Display scale */
-    // //                              /* Optional: */
+    //                                  /* Optional: */
     val tint: Option[Color],            /* Color to use as tint */
     val expires: Option[Double],        /* Countdown until expiration */
     val health: Option[Health],         /* Track health */
@@ -31,6 +33,7 @@ object Entities {
         uniqueId+= 1
         uniqueId
     }
+    
     def createSprite(renderer:Ptr[Renderer], path:CString, width:Int, height:Int):Sprite = {
         val surface:Ptr[Surface] = IMG_Load(path)
         if (surface == null) {
@@ -42,7 +45,6 @@ object Entities {
         }
         SDL_SetTextureBlendMode(sprite.texture, SDL_BLENDMODE_BLEND)
         return sprite
-
     }
 
     def createBackground(renderer:Ptr[Renderer]):Entity = {

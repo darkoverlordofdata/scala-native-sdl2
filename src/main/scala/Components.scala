@@ -1,10 +1,19 @@
 import scalanative.native._
 import SDL._
 
-object Input extends Enumeration {
-    //type Input = Value
-    val None, Left, Right, Jump, Restart, Quit = Value
-}
+/**
+ * Components
+ */
+
+abstract class Component
+case class Color(r:UByte, g:UByte, b:UByte, a:UByte) extends Component
+case class Health(current:Int, maximum:Int) extends Component
+case class ScaleTween(min:Double, max:Double, speed:Double, repeat:Boolean, active:Boolean) extends Component
+case class Sprite(texture:Ptr[Texture], width: Int, height: Int) extends Component
+
+class Rectangle(var x:Int, var y:Int, var width:Int, var height:Int)
+class Point2d(var x:Double, var y:Double) {}
+class Vector2d(var x:Double, var y:Double) {}
 
 sealed trait Actor
 case object ActorDefault extends Actor
@@ -31,6 +40,11 @@ case object CategoryParticle extends Category
 case object CategoryPlayer extends Category
 
 
+object Input extends Enumeration {
+    //type Input = Value
+    val None, Left, Right, Jump, Restart, Quit = Value
+}
+
 object Effect extends Enumeration {
     //type Effect = Value
     val Pew, Asplode, SmallAsplode = Value
@@ -48,13 +62,3 @@ object Timers extends Enumeration {
     val Timer3 = Value(13)
 }
 
-abstract class Component
-
-case class Color(r:UByte, g:UByte, b:UByte, a:UByte) extends Component
-case class Health(current:Int, maximum:Int) extends Component
-case class ScaleTween(min:Double, max:Double, speed:Double, repeat:Boolean, active:Boolean) extends Component
-case class Sprite(texture:Ptr[Texture], width: Int, height: Int) extends Component
-
-class Rectangle(var x:Int, var y:Int, var width:Int, var height:Int)
-class Point2d(var x:Double, var y:Double) {}
-class Vector2d(var x:Double, var y:Double) {}

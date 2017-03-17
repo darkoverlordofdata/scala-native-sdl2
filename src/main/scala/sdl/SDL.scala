@@ -54,6 +54,11 @@ object SDL {
   type Keysym = CStruct4[Scancode, Keycode, UShort, UInt]
   type Scancode = Int
   type Keycode = Int
+
+  type MouseMotionEvent = CStruct9[UInt, UInt, UInt, UInt, UInt, X, Y, Int, Int]
+  type X = Int
+  type Y = Int
+
 }
 
 object SDLExtra {
@@ -77,8 +82,18 @@ object SDLExtra {
     }
   }
 
-  val KEY_DOWN  = 0x300.toUInt
-  val KEY_UP    = (0x300 + 1).toUInt
+
+  val KEYDOWN  = 0x300.toUInt
+  val KEYUP    = (0x300 + 1).toUInt
+
+  val MOUSEMOTION     = 0x400.toUInt
+  val MOUSEBUTTONDOWN = 0x401.toUInt
+  val MOUSEBUTTONUP   = 0x402.toUInt
+
+  val FINGERDOWN      = 0x700.toUInt
+  val FINGERUP        = 0x701.toUInt
+  val FINGERMOTION    = 0x702.toUInt
+  
   val RIGHT_KEY = 1073741903
   val LEFT_KEY  = 1073741904
   val DOWN_KEY  = 1073741905
@@ -93,6 +108,12 @@ object SDLExtra {
   implicit class KeyboardEventOps(val self: Ptr[KeyboardEvent]) extends AnyVal {
     def keycode: Keycode = !(self._8._2)
   }
+
+  implicit class MouseMotionEventOps(val self: Ptr[MouseMotionEvent]) extends AnyVal {
+    def x: X = !(self._6)
+    def y: Y = !(self._7)
+  }
+  
 }
 
 final case class Point(x: Int, y: Int) {

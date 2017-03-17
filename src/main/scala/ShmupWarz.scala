@@ -8,7 +8,6 @@ import scala.collection.mutable._
 
 class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  { 
   var pressed                 = collection.mutable.Set.empty[Keycode]
-  var rand                    = new java.util.Random
   var particles:LinkedList[Point2d] = new LinkedList()
   var bullets:LinkedList[Point2d] = new LinkedList()
   var enemies1:LinkedList[Point2d] = new LinkedList()
@@ -16,25 +15,15 @@ class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  {
   var enemies3:LinkedList[Point2d] = new LinkedList()
   var explosions:LinkedList[Point2d] = new LinkedList()
   var bangs:LinkedList[Point2d] = new LinkedList()
-  val rect = stackalloc[Rect].init(0, 0, 0, 0)
-
-
-  rand.setSeed(java.lang.System.nanoTime)
-
-  // val surface:Ptr[Surface] = IMG_Load(c"/home/bruce/scala/shmupwarz/assets/images/BackdropBlackLittleSparkBlack.png")
-  // if (surface == null) {
-  //   println("unable to load surface")
-  // }
-  // val background:Ptr[Texture] = SDL_CreateTextureFromSurface(renderer, surface)
-  // if (background == null) {
-  //   println("unable to load texture")
-  // }
-  // SDL_SetTextureBlendMode(background, SDL_BLENDMODE_BLEND)
-
-
   var entities = initEntities()
+  var delta = 0.0
 
-
+  object mouse {
+    var x:Int = 0
+    var y:Int = 0
+  }
+  var keycode: Int = 0
+  
   def draw(fps:Int): Unit = {
       SDL_SetRenderDrawColor(renderer, 0.toUByte, 0.toUByte, 0.toUByte, 255.toUByte)
 		  SDL_RenderClear(renderer)
@@ -59,20 +48,49 @@ class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  {
   }
 
   def update(delta:Double): Unit = {
+      entities.map(sys.input(delta))
   }
+
+  def input(delta: Double, e: Entity) {
+      if (e.active && e.category == CategoryPlayer) {
+          e.position.x = mouse.x.toDouble
+          e.position.y = mouse.y.toDouble
+
+      }
+  }  
 
 
   def handleEvents():Unit = {
     val event = stackalloc[Event]
       while (SDL_PollEvent(event) != 0) {
         event.type_ match {
-          case QUIT_EVENT =>
-            // return
-            System.exit(0)
-          case KEY_DOWN =>
+
+          case KEYDOWN =>
             pressed += event.cast[Ptr[KeyboardEvent]].keycode
-          case KEY_UP =>
+            //println(s"keydown:  $p")
+
+          case KEYUP =>
             pressed -= event.cast[Ptr[KeyboardEvent]].keycode
+            //println(s"keyup:  $p")
+
+          case MOUSEMOTION =>
+            mouse.x = event.cast[Ptr[MouseMotionEvent]].x
+            mouse.y = event.cast[Ptr[MouseMotionEvent]].y
+            //println(s"mousemotion: $x,$y")
+
+          case MOUSEBUTTONDOWN =>
+            mouse.x = event.cast[Ptr[MouseMotionEvent]].x
+            mouse.y = event.cast[Ptr[MouseMotionEvent]].y
+            //println(s"mousedown: $x,$y")
+
+          case MOUSEBUTTONUP =>
+            mouse.x = event.cast[Ptr[MouseMotionEvent]].x
+            mouse.y = event.cast[Ptr[MouseMotionEvent]].y
+            //println(s"mouseup: $x,$y")
+
+          case QUIT_EVENT =>
+            System.exit(0)
+
           case _ =>
             ()
         }
@@ -92,5 +110,8 @@ class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  {
         Entities.createPlayer(renderer)
     )
   }
+
+  lazy val sys = new Systems(this)
+
 
 }
