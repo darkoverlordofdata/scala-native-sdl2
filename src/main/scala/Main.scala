@@ -42,7 +42,7 @@ object Main {
       }
       game.handleEvents()
       game.draw(fps)
-      game.update(delta)
+      game.update(delta/1000)
     }
     SDL_DestroyRenderer(renderer)
     SDL_DestroyWindow(window)

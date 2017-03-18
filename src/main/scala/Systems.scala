@@ -42,8 +42,8 @@ class Systems (val game: ShmupWarz) {
      */
     def physics(delta:Double)(e:Entity):Entity = (e.active, e.velocity) match {
         case (true, Some(velocity)) => 
-            val x = e.position.x * velocity.x * delta
-            val y = e.position.y * velocity.y * delta
+            val x = e.position.x + velocity.x * delta
+            val y = e.position.y + velocity.y * delta
             e.copy(position=new Point2d(x, y))
         
         case _ => 
@@ -154,8 +154,10 @@ class Systems (val game: ShmupWarz) {
                     game.bullets = rest
                     e.copy(
                         active = true,
-                        expires = Some(1.0), 
-                        position = new Point2d(bullet.x, bullet.y))
+                        expires = Some(1), 
+                        health = Some(new Health(2, 2)),
+                        position = new Point2d(bullet.x, bullet.y),
+                        velocity = Some(new Vector2d(0.0, -800.0)))
                 case Nil =>
                     e
             } 
@@ -167,6 +169,7 @@ class Systems (val game: ShmupWarz) {
                     e.copy(
                         active = true,
                         position = new Point2d(rand.nextInt(game.width-35).toDouble, 92.0/2.0),
+                        velocity = Some(new Vector2d(0.0, 40.0)),
                         health = Some(new Health(10, 10)))
                 case Nil =>
                     e
@@ -179,6 +182,7 @@ class Systems (val game: ShmupWarz) {
                     e.copy(
                         active = true,
                         position = new Point2d(rand.nextInt(game.width-86).toDouble, 172.0/2.0),
+                        velocity = Some(new Vector2d(0.0, 30.0)),
                         health = Some(new Health(20, 20)))
                 case Nil =>
                     e
@@ -191,6 +195,7 @@ class Systems (val game: ShmupWarz) {
                     e.copy(
                         active = true,
                         position = new Point2d(rand.nextInt(game.width-160).toDouble, 320.0/2.0),
+                        velocity = Some(new Vector2d(0.0, 20.0)),
                         health = Some(new Health(60, 60)))
                 case Nil =>
                     e
