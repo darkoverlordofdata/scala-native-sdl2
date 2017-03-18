@@ -8,7 +8,7 @@ import SDL_image_extras._
 /**
  * Entity database record
  */
-class Entity (
+case class Entity (
     val id: Int,                        /* Unique sequential id */
     val name: String,                   /* Display name */
     val active: Boolean,                /* In use */

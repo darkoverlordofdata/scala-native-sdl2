@@ -15,23 +15,82 @@ class Systems (val game: ShmupWarz) {
 
     rand.setSeed(java.lang.System.nanoTime)
 
-    def input(delta:Double)(e:Entity):Unit = {
-        if (e.active && e.category == CategoryPlayer) {
-            e.position.x = game.mouse.x.toDouble
-            e.position.y = game.mouse.y.toDouble
-
-        //     if (game inputs[Input JUMP]) {
-        //         timeToFire -= delta
-        //         if (timeToFire < 0.0) {
-        //             game bullets add((e position x - 27, e position y + 2) as Point2d)
-        //             game bullets add((e position x + 27, e position y + 2) as Point2d)
-        //             timeToFire = FireRate
-        //         }
-        //     }
-        // }
-            
+    /** 
+     * Handle player input
+     */
+    def input (delta:Double) (e:Entity):Entity = (e.active, e.category) match {
+        case (true, CategoryPlayer) => {
+            val x = game.mouse.x.toDouble
+            val y = game.mouse.y.toDouble
+            if (game.pressed.contains(122)) { // z
+                timeToFire -= delta
+                if (timeToFire < 0.0) {
+                    game.bullets += (new Point2d(e.position.x - 27, e.position.y + 2))
+                    game.bullets += (new Point2d(e.position.x + 27, e.position.y + 2))
+                    timeToFire = FireRate
+                }
+            }
+            e.copy(position=new Point2d(x, y))
         }
+        case _ => e
+    }
+    
+
+    /**
+     * Spawn enemies
+     */
+    def spawn(delta:Double)(e:Entity):Entity = {
+        e
     }
 
+    /**
+     * Motion
+     */
+    def physics(delta:Double)(e:Entity):Entity = (e.active, e.velocity) match {
+        case (true, Some(velocity)) => {
+            val x = e.position.x * velocity.x * delta
+            val y = e.position.y * velocity.y * delta
+            e.copy(position=new Point2d(x, y))
+        }
+        case _ => e
+    }
     
+
+    /**
+     * Expire enities
+     */
+    def expire(delta:Double)(e:Entity):Entity = {
+        e
+    }
+
+
+    /**
+     * Tween 
+     */
+    def tween(delta:Double)(e:Entity):Entity = {
+        e
+    }
+
+    /**
+     * remove offscreen entities
+     */
+    def remove(delta:Double)(e:Entity):Entity = {
+        e
+    }
+
+    /**
+     * Handle collisions
+     */
+    def collision(delta:Double, entities:List[Entity]):List[Entity] = {
+        entities
+    }
+
+    /**
+     * create entities from que
+     */
+    def create(delta:Double, entities:List[Entity]):List[Entity] = {
+        entities
+    }
+
+
 }

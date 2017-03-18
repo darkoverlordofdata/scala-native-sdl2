@@ -6,21 +6,24 @@ import SDL_image_extras._
 import scala.collection.mutable._
 
 
+
 class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  { 
-  var pressed                 = collection.mutable.Set.empty[Keycode]
-  var particles:LinkedList[Point2d] = new LinkedList()
-  var bullets:LinkedList[Point2d] = new LinkedList()
-  var enemies1:LinkedList[Point2d] = new LinkedList()
-  var enemies2:LinkedList[Point2d] = new LinkedList()
-  var enemies3:LinkedList[Point2d] = new LinkedList()
-  var explosions:LinkedList[Point2d] = new LinkedList()
-  var bangs:LinkedList[Point2d] = new LinkedList()
+  var pressed = collection.mutable.Set.empty[Keycode]
+  var particles = new ListBuffer[Point2d]()
+  var bullets = new ListBuffer[Point2d]()
+  var enemies1 = new ListBuffer[Point2d]()
+  var enemies2 = new ListBuffer[Point2d]()
+  var enemies3 = new ListBuffer[Point2d]()
+  var explosions = new ListBuffer[Point2d]()
+  var bangs = new ListBuffer[Point2d]()
   var entities = initEntities()
   var delta = 0.0
+  lazy val sys = new Systems(this)
 
   object mouse {
-    var x:Int = 0
-    var y:Int = 0
+    var x = 0
+    var y = 0
+    var pressed = false
   }
   var keycode: Int = 0
   
@@ -48,7 +51,15 @@ class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  {
   }
 
   def update(delta:Double): Unit = {
-      entities.map(sys.input(delta))
+
+      entities = sys.create(delta, sys.collision(delta, entities))
+        .map(sys.input(delta))
+        .map(sys.spawn(delta))
+        .map(sys.physics(delta))
+        .map(sys.physics(delta))
+        .map(sys.expire(delta))
+        .map(sys.tween(delta))
+        .map(sys.remove(delta))
   }
 
   def input(delta: Double, e: Entity) {
@@ -66,27 +77,24 @@ class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  {
         event.type_ match {
 
           case KEYDOWN =>
-            pressed += event.cast[Ptr[KeyboardEvent]].keycode
-            //println(s"keydown:  $p")
+            keycode = event.cast[Ptr[KeyboardEvent]].keycode
+            pressed += keycode
 
           case KEYUP =>
-            pressed -= event.cast[Ptr[KeyboardEvent]].keycode
-            //println(s"keyup:  $p")
+            keycode = event.cast[Ptr[KeyboardEvent]].keycode
+            pressed -= keycode
 
           case MOUSEMOTION =>
             mouse.x = event.cast[Ptr[MouseMotionEvent]].x
             mouse.y = event.cast[Ptr[MouseMotionEvent]].y
-            //println(s"mousemotion: $x,$y")
 
           case MOUSEBUTTONDOWN =>
+            mouse.pressed = true
             mouse.x = event.cast[Ptr[MouseMotionEvent]].x
             mouse.y = event.cast[Ptr[MouseMotionEvent]].y
-            //println(s"mousedown: $x,$y")
 
           case MOUSEBUTTONUP =>
-            mouse.x = event.cast[Ptr[MouseMotionEvent]].x
-            mouse.y = event.cast[Ptr[MouseMotionEvent]].y
-            //println(s"mouseup: $x,$y")
+            mouse.pressed = false
 
           case QUIT_EVENT =>
             System.exit(0)
@@ -97,8 +105,8 @@ class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  {
       }
   }
 
-  def initEntities():Array[Entity] = {
-    return Array(
+  def initEntities():List[Entity] = {
+    return List(
         Entities.createBackground(renderer),
         Entities.createEnemy1(renderer),
         Entities.createEnemy2(renderer),
@@ -111,7 +119,6 @@ class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  {
     )
   }
 
-  lazy val sys = new Systems(this)
 
 
 }
