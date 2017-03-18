@@ -7,10 +7,11 @@ import SDL._
 @extern
 @link("SDL2")
 object SDL {
-  type Window   = CStruct0
-  type Renderer = CStruct0
-  type Surface   = CStruct0
-  type Texture   = CStruct0
+  
+  type Window   = Ptr[CStruct0]
+  type Renderer = Ptr[CStruct0]
+  type Surface  = Ptr[CStruct0]
+  type Texture  = Ptr[CStruct0]
 
   def SDL_GetError():CString = extern
   def SDL_Init(flags: UInt): Unit = extern
@@ -19,19 +20,19 @@ object SDL {
                        y: CInt,
                        w: Int,
                        h: Int,
-                       flags: UInt): Ptr[Window] = extern
-  def SDL_DestroyWindow(win: Ptr[Window]):Unit = extern
-  def SDL_Delay(ms: UInt): Unit                  = extern
-  def SDL_CreateRenderer(win: Ptr[Window],
+                       flags: UInt): Window = extern
+  def SDL_DestroyWindow(win: Window):Unit = extern
+  def SDL_Delay(ms: UInt):Unit = extern
+  def SDL_CreateRenderer(win: Window,
                          index: CInt,
-                         flags: UInt): Ptr[Renderer] = extern
+                         flags: UInt): Renderer = extern
 
-  def SDL_DestroyRenderer(render: Ptr[Renderer]):Unit = extern
+  def SDL_DestroyRenderer(render: Renderer):Unit = extern
   def SDL_Quit():Unit = extern
 
-  def SDL_CreateTextureFromSurface(render: Ptr[Renderer], surface: Ptr[Surface]):Ptr[Texture] = extern
+  def SDL_CreateTextureFromSurface(render: Renderer, surface: Surface):Texture = extern
 
-  def SDL_SetTextureBlendMode(texture: Ptr[Texture], blendMode: UInt): UInt = extern
+  def SDL_SetTextureBlendMode(texture: Texture, blendMode: UInt): UInt = extern
 
   type _56 = Nat.Digit[Nat._5, Nat._6]
   type Event = CStruct2[UInt, CArray[Byte, _56]]
@@ -40,15 +41,15 @@ object SDL {
 
   type Rect = CStruct4[CInt, CInt, CInt, CInt]
 
-  def SDL_RenderClear(renderer: Ptr[Renderer]): Unit = extern
-  def SDL_SetRenderDrawColor(renderer: Ptr[Renderer],
+  def SDL_RenderClear(renderer: Renderer): Unit = extern
+  def SDL_SetRenderDrawColor(renderer: Renderer,
                              r: UByte,
                              g: UByte,
                              b: UByte,
                              a: UByte): Unit = extern
-  def SDL_RenderFillRect(renderer: Ptr[Renderer], rect: Ptr[Rect]): Unit = extern
-  def SDL_RenderPresent(renderer: Ptr[Renderer]): Unit = extern
-  def SDL_RenderCopy(renderer: Ptr[Renderer], texture: Ptr[Texture], srcrect: Ptr[Rect], dstrect: Ptr[Rect]):Unit = extern
+  def SDL_RenderFillRect(renderer: Renderer, rect: Ptr[Rect]): Unit = extern
+  def SDL_RenderPresent(renderer: Renderer): Unit = extern
+  def SDL_RenderCopy(renderer: Renderer, texture: Texture, srcrect: Ptr[Rect], dstrect: Ptr[Rect]):Unit = extern
 
   type KeyboardEvent = CStruct8[UInt, UInt, UInt, UByte, UByte, UByte, UByte, Keysym]
   type Keysym = CStruct4[Scancode, Keycode, UShort, UInt]

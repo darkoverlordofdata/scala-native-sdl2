@@ -3,7 +3,7 @@ import SDL._
 import SDLExtra._
 import SDL_image._
 import SDL_image_extras._
-
+import scala.annotation.tailrec
 
 class Systems (val game: ShmupWarz) {
     var rand = new java.util.Random
@@ -18,11 +18,11 @@ class Systems (val game: ShmupWarz) {
     /** 
      * Handle player input
      */
-    def input (delta:Double) (e:Entity):Entity = (e.active, e.category) match {
+    def input(delta:Double) (e:Entity):Entity = (e.active, e.category) match {
         case (true, CategoryPlayer) => 
             val x = game.mouse.x.toDouble
             val y = game.mouse.y.toDouble
-            if (game.pressed.contains(122)) { // z
+            if (game.pressed.contains(122) || game.mouse.pressed) { // z
                 timeToFire -= delta
                 if (timeToFire < 0.0) {
                     game.bullets = new Point2d(e.position.x - 27, e.position.y + 2) :: game.bullets
@@ -40,11 +40,17 @@ class Systems (val game: ShmupWarz) {
     /**
      * Motion
      */
-    def physics(delta:Double)(e:Entity):Entity = (e.active, e.velocity) match {
+    def physics(delta:Double) (e:Entity):Entity = (e.active, e.velocity) match {
         case (true, Some(velocity)) => 
             val x = e.position.x + velocity.x * delta
             val y = e.position.y + velocity.y * delta
-            e.copy(position=new Point2d(x, y))
+
+            val x1 = (x-e.bounds.width/2).toInt
+            val y1 = (y-e.bounds.height/2).toInt
+
+            e.copy(
+                position = new Point2d(x, y), 
+                bounds = new Rectangle(x1, y1, e.bounds.width, e.bounds.height))
         
         case _ => 
             e
@@ -128,13 +134,6 @@ class Systems (val game: ShmupWarz) {
         enemyT1 = spawnEnemy(enemyT1, 1)
         enemyT2 = spawnEnemy(enemyT2, 2)
         enemyT3 = spawnEnemy(enemyT3, 3)
-    }
-
-    /**
-     * Handle collisions
-     */
-    def collision(delta:Double, entities:List[Entity]):List[Entity] = {
-        entities
     }
 
     /**
@@ -229,6 +228,63 @@ class Systems (val game: ShmupWarz) {
 
         case _ => e
         
+    }
+
+    def intersects(a:Entity, b:Entity):Boolean = {
+        val r1 = a.bounds
+        val r2 = b.bounds
+        return ((r1.x < r2.x + r2.width) && 
+                (r1.x + r1.width > r2.x) && 
+                (r1.y < r2.y + r2.height) && 
+                (r1.y + r1.height > r2.y)) 
+    }
+
+    def findCollision(a:Entity, b:Entity):Entity = (a.category, a.active, b.category, b.active) match {
+        case (CategoryEnemy, true, CategoryBullet, true) => {
+            game.addBang(b.position.x, b.position.y)
+            game.removeEntity(b.id)
+            a.health match {
+                case Some(health) => {
+                    val h = health.current -1
+                    if (h < 0) {
+                        game.addExplosion(b.position.x, b.position.y)
+                        return a.copy(active=false)
+                    } else {
+                        return a.copy(health=Some(new Health(h, health.maximum)))
+                    }   
+                }
+                case _ => a
+            }
+        }
+        case _ => a
+    }
+
+    def figureCollisions(e:Entity, sorted:List[Entity]):Entity = sorted match {
+        case x :: xs => {
+            val a = if (intersects(e, x)) findCollision(e, x) else e
+            figureCollisions(a, xs)
+        }
+        case Nil => e
+    }
+    
+    /**
+     * Handle collisions
+     */
+    def collision(delta:Double, entities:List[Entity]):List[Entity] = {
+
+        @tailrec
+        def fixCollisions(toFix:List[Entity], fixed:List[Entity]):List[Entity] = toFix match {
+            case Nil => fixed
+            case x :: xs => {
+                // val a = figureCollisions(x, fixed)
+                // fixCollisions(xs, a::fixed)
+                fixCollisions(xs, x::fixed)
+            }
+        }
+
+        // entities        
+        fixCollisions(entities, List())
+
     }
 
 

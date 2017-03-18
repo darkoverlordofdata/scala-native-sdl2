@@ -7,7 +7,7 @@ object SDL_image {
 
 
   def IMG_Init(flags: UInt):UInt = extern
-  def IMG_Load(path: CString):Ptr[Surface] = extern
+  def IMG_Load(path: CString):Surface = extern
 
 
 }
