@@ -5,18 +5,21 @@ import SDL_image._
 import SDL_image_extras._
 import scala.collection.mutable._
 
+class ShmupWarz (val renderer: Ptr[Renderer], val width:Int, val height:Int)  { 
 
-
-class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  { 
   var pressed = collection.mutable.Set.empty[Keycode]
-  var particles = new ListBuffer[Point2d]()
-  var bullets = new ListBuffer[Point2d]()
-  var enemies1 = new ListBuffer[Point2d]()
-  var enemies2 = new ListBuffer[Point2d]()
-  var enemies3 = new ListBuffer[Point2d]()
-  var explosions = new ListBuffer[Point2d]()
-  var bangs = new ListBuffer[Point2d]()
+  var deactivate = new ListBuffer[Int]()
+
+  var bullets:List[Point2d] = List()
+  var enemies1:List[Point2d] = List()
+  var enemies2:List[Point2d] = List()
+  var enemies3:List[Point2d] = List()
+  var explosions:List[Point2d] = List()
+  var bangs:List[Point2d] = List()
+  var particles:List[Point2d] = List()
+
   var entities = initEntities()
+
   var delta = 0.0
   lazy val sys = new Systems(this)
 
@@ -52,10 +55,10 @@ class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  {
 
   def update(delta:Double): Unit = {
 
-      entities = sys.create(delta, sys.collision(delta, entities))
+      sys.spawn(delta)
+      entities = sys.collision(delta, entities)
+        .map(sys.create(delta))
         .map(sys.input(delta))
-        .map(sys.spawn(delta))
-        .map(sys.physics(delta))
         .map(sys.physics(delta))
         .map(sys.expire(delta))
         .map(sys.tween(delta))
@@ -105,20 +108,69 @@ class ShmupWarz (renderer: Ptr[Renderer], width:Int, height:Int)  {
       }
   }
 
+  def removeEntity(id:Int):Unit = deactivate += id
+  def addBullet(x:Double, y:Double):Unit = bullets = new Point2d(x, y) :: bullets
+  def addExplosion(x:Double, y:Double):Unit = explosions = new Point2d(x, y) :: explosions
+  def addBang(x:Double, y:Double):Unit = bangs = new Point2d(x, y) :: bangs
+  def addParticle(x:Double, y:Double):Unit = particles = new Point2d(x, y) :: particles
+   
+  def addEnemy(enemy:Int):Unit = enemy match {
+    case 1 => enemies1 = new Point2d(0,0) :: enemies1
+    case 2 => enemies2 = new Point2d(0,0) :: enemies2
+    case 3 => enemies3 = new Point2d(0,0) :: enemies3
+    case _ => ()
+  }
+
   def initEntities():List[Entity] = {
     return List(
         Entities.createBackground(renderer),
         Entities.createEnemy1(renderer),
+        Entities.createEnemy1(renderer),
+        Entities.createEnemy1(renderer),
+        Entities.createEnemy1(renderer),
+        Entities.createEnemy2(renderer),
+        Entities.createEnemy2(renderer),
+        Entities.createEnemy2(renderer),
         Entities.createEnemy2(renderer),
         Entities.createEnemy3(renderer),
-        Entities.createParticle(renderer),
+        Entities.createEnemy3(renderer),
+        Entities.createEnemy3(renderer),
+        Entities.createEnemy3(renderer),
+        // Entities.createParticle(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
+        Entities.createBullet(renderer),
         Entities.createBullet(renderer),
         Entities.createBang(renderer),
+        Entities.createBang(renderer),
+        Entities.createBang(renderer),
+        Entities.createBang(renderer),
+        Entities.createBang(renderer),
+        Entities.createBang(renderer),
+        Entities.createExplosion(renderer),
+        Entities.createExplosion(renderer),
+        Entities.createExplosion(renderer),
+        Entities.createExplosion(renderer),
+        Entities.createExplosion(renderer),
         Entities.createExplosion(renderer),
         Entities.createPlayer(renderer)
     )
   }
-
-
 
 }

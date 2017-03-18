@@ -49,12 +49,12 @@ object Effect extends Enumeration {
     val Pew, Asplode, SmallAsplode = Value
 }
 
-object Enemies extends Enumeration {
-    //type Enemies = Value
-    val Enemy1, Enemy2, Enemy3 = Value
-}
+sealed trait Enemies 
+case object Enemy1 extends Enemies
+case object Enemy2 extends Enemies
+case object Enemy3 extends Enemies
 
-object Timers extends Enumeration {
+sealed trait Timers extends Enumeration {
     //type Timers = Value
     val Timer1 = Value(2)
     val Timer2 = Value(7)
