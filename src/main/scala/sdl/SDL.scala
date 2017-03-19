@@ -12,9 +12,10 @@ object SDL {
   type Renderer = Ptr[CStruct0]
   type Surface  = Ptr[CStruct0]
   type Texture  = Ptr[CStruct0]
+  type SDL_RWops = Ptr[CStruct0]
 
   def SDL_GetError():CString = extern
-  def SDL_Init(flags: UInt): Unit = extern
+  def SDL_Init(flags: UInt):CInt = extern
   def SDL_CreateWindow(title: CString,
                        x: CInt,
                        y: CInt,
@@ -31,8 +32,10 @@ object SDL {
   def SDL_Quit():Unit = extern
 
   def SDL_CreateTextureFromSurface(render: Renderer, surface: Surface):Texture = extern
+  def SDL_SetTextureBlendMode(texture: Texture, blendMode: UInt):UInt = extern
 
-  def SDL_SetTextureBlendMode(texture: Texture, blendMode: UInt): UInt = extern
+  def SDL_RWFromFile(file:CString, mode:CString):SDL_RWops = extern
+  //def SDL_LoadBMP_RW(file, 1)
 
   type _56 = Nat.Digit[Nat._5, Nat._6]
   type Event = CStruct2[UInt, CArray[Byte, _56]]
@@ -65,7 +68,18 @@ object SDL {
 }
 
 object SDLExtra {
-  val INIT_VIDEO   = 0x00000020.toUInt
+
+  val SDL_INIT_TIMER          = 0x00000001.toUInt
+  val SDL_INIT_AUDIO          = 0x00000010.toUInt
+  val SDL_INIT_VIDEO          = 0x00000020.toUInt  /**< SDL_INIT_VIDEO implies SDL_INIT_EVENTS */
+  val SDL_INIT_JOYSTICK       = 0x00000200.toUInt  /**< SDL_INIT_JOYSTICK implies SDL_INIT_EVENTS */
+  val SDL_INIT_HAPTIC         = 0x00001000.toUInt
+  val SDL_INIT_GAMECONTROLLER = 0x00002000.toUInt  /**< SDL_INIT_GAMECONTROLLER implies SDL_INIT_JOYSTICK */
+  val SDL_INIT_EVENTS         = 0x00004000.toUInt
+  val SDL_INIT_NOPARACHUTE    = 0x00100000.toUInt  /**< compatibility; this flag is ignored. */
+  val SDL_INIT_EVERYTHING     = SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER 
+
+
   val WINDOW_SHOWN = 0x00000004.toUInt
   val VSYNC        = 0x00000004.toUInt
 
@@ -86,6 +100,9 @@ object SDLExtra {
   val LEFT_KEY  = 1073741904
   val DOWN_KEY  = 1073741905
   val UP_KEY    = 1073741906
+
+  val KEY_ESC   = 27
+  val KEY_z     = 122
 
   val SDL_BLENDMODE_NONE = 0.toUInt
   val SDL_BLENDMODE_BLEND = 1.toUInt

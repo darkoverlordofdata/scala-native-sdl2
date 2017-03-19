@@ -4,14 +4,21 @@ import SDLExtra._
 import SDL_ttf._
 import SDL_image._
 import SDL_image_extras._
+import SDL_mixer._
+import SDL_mixer_extras._
 
 object Main {
   def main(args: Array[String]): Unit = {
 
-    SDL_Init(INIT_VIDEO)
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+      println( "SDL could not initialize! SDL Error: ${SDL_GetError()}\n")
+    }
     TTF_Init()
     if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
       println("Unable to init image")
+    }
+    if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 2048) == -1) {
+      println("Unable to init mixer")
     }
 
     val title  = c"ShmupWarz"
@@ -28,7 +35,8 @@ object Main {
     var fps = 60
     var k = 0
 
-    while (true) {
+    game.start()
+    while (game.running) {
       mark2 = System.nanoTime().toDouble / u
       delta = mark2 - mark1
       mark1 = mark2

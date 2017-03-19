@@ -10,6 +10,7 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
 
   var pressed = collection.mutable.Set.empty[Keycode]
   var deactivate = new ListBuffer[Int]()
+  var running = false
 
   var bullets:List[Point2d] = List()
   var enemies1:List[Point2d] = List()
@@ -44,6 +45,9 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
     case _ => ()
   }
 
+  def start():Unit = {
+    running = true
+  }
   /**
    * Draw frame
    */
@@ -108,6 +112,7 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
         .map(sys.collision(delta))
         .map(sys.create(delta))
         .map(sys.input(delta))
+        .map(sys.sound(delta))
         .map(sys.physics(delta))
         .map(sys.expire(delta))
         .map(sys.tween(delta))
@@ -124,6 +129,7 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
 
           case KEYDOWN =>
             keycode = event.cast[Ptr[KeyboardEvent]].keycode
+            if (keycode == KEY_ESC) running = false
             pressed += keycode
 
           case KEYUP =>

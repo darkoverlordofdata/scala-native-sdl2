@@ -1,4 +1,8 @@
 import scalanative.native._
+import SDL._
+import SDLExtra._
+import SDL_mixer._
+import SDL_mixer_extras._
 
 class Systems (val game: ShmupWarz) {
     var rand = new java.util.Random
@@ -9,6 +13,10 @@ class Systems (val game: ShmupWarz) {
     var timeToFire: Double = 0.0
     val Tau = 6.28318
 
+    val s1 = Mix_LoadWAV(c"/home/bruce/scala/shmupwarz/assets/sounds/pew.wav")
+    val s2 = Mix_LoadWAV(c"/home/bruce/scala/shmupwarz/assets/sounds/asplode.wav")
+    val s3 = Mix_LoadWAV(c"/home/bruce/scala/shmupwarz/assets/sounds/smallasplode.wav")
+
     rand.setSeed(java.lang.System.nanoTime)
 
     /** 
@@ -18,7 +26,7 @@ class Systems (val game: ShmupWarz) {
         case (true, CategoryPlayer) => 
             val x = game.mouse.x.toDouble
             val y = game.mouse.y.toDouble
-            if (game.pressed.contains(122) || game.mouse.pressed) { // z
+            if (game.pressed.contains(KEY_z) || game.mouse.pressed) { // z
                 timeToFire -= delta
                 if (timeToFire < 0.0) {
                     game.bullets = new Point2d(e.position.x - 27, e.position.y + 2) :: game.bullets
@@ -31,6 +39,18 @@ class Systems (val game: ShmupWarz) {
         case _ => e
     }
     
+    def sound(delta:Double)(e:Entity):Entity = (e.active, e.sound) match {
+        case (true, Some(sound)) => {
+            sound match {
+                case EffectPew => Mix_PlayChannel(s1, 0, 0)
+                case EffectAsplode => Mix_PlayChannel(s2, 0, 0)
+                case EffectSmallAsplode => Mix_PlayChannel(s3, 0, 0)
+                case _ => ()
+            }
+            e
+        }
+        case _ => e
+    }
 
     /**
      * Motion
@@ -239,4 +259,6 @@ class Systems (val game: ShmupWarz) {
             case _ => e
         }
     }
+
 }
+
