@@ -65,10 +65,10 @@ class Systems (val game: ShmupWarz) {
     /**
      * Tween 
      */
-    def tween(delta:Double)(e:Entity):Entity = (e.active, e.scaleTween) match {
-        case (true, Some(tween)) => {
-            var x = e.scale.x + (tween.speed * delta)
-            var y = e.scale.y + (tween.speed * delta)
+    def tween(delta:Double)(e:Entity):Entity = (e.active, e.scaleTween, e.scale) match {
+        case (true, Some(tween), Some(scale)) => {
+            var x = scale.x + (tween.speed * delta)
+            var y = scale.y + (tween.speed * delta)
             var active = tween.active
 
             if (x > tween.max) {
@@ -81,7 +81,7 @@ class Systems (val game: ShmupWarz) {
                 active = false
             }
             e.copy(
-                scale = new Vector2d(x, y), 
+                scale = Some(new Vector2d(x, y)), 
                 scaleTween = Some(new ScaleTween(tween.min, tween.max, tween.speed, tween.repeat, active))
                 )
 
@@ -142,13 +142,7 @@ class Systems (val game: ShmupWarz) {
                 case Nil => e
                 case bullet :: rest =>
                     game.bullets = rest
-                    e.copy(
-                        active = true,
-                        expires = Some(1), 
-                        health = Some(new Health(2, 2)),
-                        position = new Point2d(bullet.x, bullet.y),
-                        tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0x00.toUByte, 0xffa.toUByte)),
-                        velocity = Some(new Vector2d(0.0, -800.0)))
+                    Entities.bullet(e, bullet.x, bullet.y)
             } 
 
         case (false, ActorEnemy1) => 
@@ -156,11 +150,7 @@ class Systems (val game: ShmupWarz) {
                 case Nil => e
                 case enemy :: rest =>
                     game.enemies1 = rest
-                    e.copy(
-                        active = true,
-                        position = new Point2d(rand.nextInt(game.width-35).toDouble, 92.0/2.0),
-                        velocity = Some(new Vector2d(0.0, 40.0)),
-                        health = Some(new Health(10, 10)))
+                    Entities.enemy1(e, game.width, rand)
             }
 
         case (false, ActorEnemy2) => 
@@ -168,11 +158,7 @@ class Systems (val game: ShmupWarz) {
                 case Nil => e
                 case enemy :: rest =>
                     game.enemies2 = rest
-                    e.copy(
-                        active = true,
-                        position = new Point2d(rand.nextInt(game.width-86).toDouble, 172.0/2.0),
-                        velocity = Some(new Vector2d(0.0, 30.0)),
-                        health = Some(new Health(20, 20)))
+                    Entities.enemy2(e, game.width, rand)
             }
 
         case (false, ActorEnemy3) => 
@@ -180,11 +166,7 @@ class Systems (val game: ShmupWarz) {
                 case Nil => e
                 case enemy :: rest =>
                     game.enemies3 = rest
-                    e.copy(
-                        active = true,
-                        position = new Point2d(rand.nextInt(game.width-160).toDouble, 320.0/2.0),
-                        velocity = Some(new Vector2d(0.0, 20.0)),
-                        health = Some(new Health(60, 60)))
+                    Entities.enemy3(e, game.width, rand)
             }
 
         case (false, ActorExplosion) => 
@@ -192,13 +174,7 @@ class Systems (val game: ShmupWarz) {
                 case Nil => e
                 case explosion :: rest =>
                     game.explosions = rest
-                    e.copy(
-                        active = true,
-                        position = new Point2d(explosion.x, explosion.y),
-                        scaleTween = Some(new ScaleTween(0.5/100, 0.5, -3, false, true)),
-                        tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
-                        scale = new Vector2d(0.5, 0.5),
-                        expires = Some(0.2))
+                    Entities.explosion(e, explosion.x, explosion.y)
             }
 
         case (false, ActorBang) => 
@@ -206,32 +182,15 @@ class Systems (val game: ShmupWarz) {
                 case Nil => e
                 case bang :: rest =>
                     game.bangs = rest
-                    e.copy(
-                        active = true,
-                        position = new Point2d(bang.x, bang.y),
-                        scaleTween = Some(new ScaleTween(0.2/100, 0.2, -3, false, true)),
-                        tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
-                        scale = new Vector2d(0.2, 0.2),
-                        expires = Some(0.2))
+                    Entities.bang(e, bang.x, bang.y)
             }
 
         case (false, ActorParticle) => 
-            val radians = rand.nextDouble() * Tau
-            val magnitude = rand.nextInt(200)
-            val velocityX = magnitude * scala.math.cos(radians)
-            val velocityY = magnitude * scala.math.sin(radians)
-            val scale = rand.nextInt(10).toDouble / 10.0
             game.particles match {
                 case Nil => e
                 case particle :: rest =>
                     game.particles = rest
-                    e.copy(
-                        active = true,
-                        position = new Point2d(particle.x, particle.y),
-                        scale = new Vector2d(scale, scale),
-                        velocity = Some(new Vector2d(velocityX, velocityY)),
-                        tint = Some(new Color(0xfa.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xff.toUByte)),
-                        expires = Some(0.5))
+                    Entities.particle(e, particle.x, particle.y, rand)
             }
 
         case _ => e

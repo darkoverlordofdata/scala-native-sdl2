@@ -2,6 +2,8 @@
 
 scala native + SDL2
 
+port of fsharp https://github.com/darkoverlordofdata/map-reduce-ecs
+
 immutable ecs:
 
 a frame is the current state of the entity database

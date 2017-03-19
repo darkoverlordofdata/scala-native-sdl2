@@ -69,22 +69,7 @@ object SDLExtra {
   val WINDOW_SHOWN = 0x00000004.toUInt
   val VSYNC        = 0x00000004.toUInt
 
-  implicit class EventOps(val self: Ptr[Event]) extends AnyVal {
-    def type_ = !(self._1)
-  }
-
   val QUIT_EVENT = 0x100.toUInt
-
-  implicit class RectOps(val self: Ptr[Rect]) extends AnyVal {
-    def init(x: Int, y: Int, w: Int, h: Int): Ptr[Rect] = {
-      !(self._1) = x
-      !(self._2) = y
-      !(self._3) = w
-      !(self._4) = h
-      self
-    }
-  }
-
 
   val KEYDOWN  = 0x300.toUInt
   val KEYUP    = (0x300 + 1).toUInt
@@ -107,6 +92,21 @@ object SDLExtra {
   val SDL_BLENDMODE_ADD = 2.toUInt
   val SDL_BLENDMODE_MOD = 4.toUInt
 
+  val SDL_WINDOWPOS_CENTERED = 0x2FFF0000
+
+  implicit class EventOps(val self: Ptr[Event]) extends AnyVal {
+    def type_ = !(self._1)
+  }
+
+  implicit class RectOps(val self: Ptr[Rect]) extends AnyVal {
+    def init(x: Int, y: Int, w: Int, h: Int): Ptr[Rect] = {
+      !(self._1) = x
+      !(self._2) = y
+      !(self._3) = w
+      !(self._4) = h
+      self
+    }
+  }
 
   implicit class KeyboardEventOps(val self: Ptr[KeyboardEvent]) extends AnyVal {
     def keycode: Keycode = !(self._8._2)
@@ -119,8 +119,4 @@ object SDLExtra {
   
 }
 
-final case class Point(x: Int, y: Int) {
-  def -(other: Point) = Point(this.x - other.x, this.y - other.y)
-  def +(other: Point) = Point(this.x - other.x, this.y - other.y)
-}
 

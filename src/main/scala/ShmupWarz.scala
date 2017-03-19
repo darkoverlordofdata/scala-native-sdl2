@@ -52,27 +52,44 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
   def draw(fps:Int): Unit = {
       SDL_SetRenderDrawColor(renderer, 0.toUByte, 0.toUByte, 0.toUByte, 255.toUByte)
 		  SDL_RenderClear(renderer)
-      entities.filter(_.active).map(drawSprite)
+      entities.filter(_.active).map(drawEntity)
       drawFps(fps)
       SDL_RenderPresent(renderer)
   }
 
-  def drawSprite(e:Entity):Unit = {
+  def drawEntity(e:Entity):Unit = {
+      def setTint():Unit = {
+          e.tint match {
+            case Some(tint) => SDL_SetTextureColorMod(e.sprite.texture, tint.r, tint.g, tint.b)
+            case _ => ()
+          }
+      }
+      def drawSprite(x:Int, y:Int, w:Int, h:Int):Unit = {
+          setTint()
+          val rect = stackalloc[Rect].init(x, y, w, h)
+          SDL_RenderCopy(renderer, e.sprite.texture, null, rect) 
+      }
+
       if (e.category == CategoryBackground) {
+        setTint()
         SDL_RenderCopy(renderer, e.sprite.texture, null, null) 
       } else {
-        val w = if (e.scale.x != 0) (e.sprite.width * e.scale.x).toInt else e.sprite.width
-        val h = if (e.scale.y != 0) (e.sprite.height * e.scale.y).toInt else e.sprite.height
-        val x = (e.position.x - w / 2).toInt
-        val y = (e.position.y - h / 2).toInt
-        e.tint match {
-          case Some(tint) =>
-              SDL_SetTextureColorMod(e.sprite.texture, tint.r, tint.g, tint.b)
-          case _ =>
-              ()
+        e.scale match {
+          case (Some(scale)) => {
+            val w = (e.sprite.width * scale.x).toInt
+            val h = (e.sprite.height * scale.y).toInt
+            val x = (e.position.x - w / 2).toInt
+            val y = (e.position.y - h / 2).toInt
+            drawSprite(x, y, w, h)
+          }
+          case _ => {
+            val w = e.sprite.width
+            val h = e.sprite.height
+            val x = (e.position.x - w / 2).toInt
+            val y = (e.position.y - h / 2).toInt
+            drawSprite(x, y, w, h)
+          }
         }
-        val rect = stackalloc[Rect].init(x, y, w, h)
-        SDL_RenderCopy(renderer, e.sprite.texture, null, rect) 
       }
   }
 

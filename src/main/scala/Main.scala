@@ -8,18 +8,16 @@ import SDL_image_extras._
 object Main {
   def main(args: Array[String]): Unit = {
 
-    val title  = c"ShmupWarz"
-    val width  = 800
-    val height = 800
-
     SDL_Init(INIT_VIDEO)
     TTF_Init()
-
     if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
       println("Unable to init image")
     }
 
-    val window: Window = SDL_CreateWindow(title, 0, 0, width, height, WINDOW_SHOWN)
+    val title  = c"ShmupWarz"
+    val width  = (320*1.5).toInt
+    val height = (480*1.5).toInt
+    val window: Window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, WINDOW_SHOWN)
     val renderer: Renderer = SDL_CreateRenderer(window, -1, VSYNC)
     val game = new ShmupWarz(renderer, width, height)
     val u = 1000000000.toDouble 
