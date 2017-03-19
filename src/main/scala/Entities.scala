@@ -15,10 +15,10 @@ case class Entity (
     val category: Category,             /* Category */
     val position: Point2d,              /* Position on screen */
     val bounds: Rectangle,              /* Collision bounds */
+    val scale: Vector2d,                /* Display scale */
     val sprite: Sprite,                 /* Sprite */
     //                                  /* Optional: */
     val sound: Option[Effect],          /* Sound effect */
-    val scale: Option[Vector2d],        /* Display scale */
     val tint: Option[Color],            /* Color to use as tint */
     val expires: Option[Double],        /* Countdown until expiration */
     val health: Option[Health],         /* Track health */
@@ -64,7 +64,7 @@ object Entities {
             bounds = new Rectangle(0, 0, width, height),
             sprite = sprite,
             sound = None,
-            scale = None,
+            scale = new Vector2d(1.0, 1.0),
             tint = None,
             expires = None,
             health = None,
@@ -89,7 +89,7 @@ object Entities {
             bounds = new Rectangle(0, 0, width, height),
             sprite = sprite,
             sound = None,
-            scale = None,
+            scale = new Vector2d(1.0, 1.0),
             tint = None,
             expires = None,
             health = None,
@@ -114,7 +114,7 @@ object Entities {
             bounds = new Rectangle(0, 0, (width*2).toInt, height),
             sprite = sprite,
             sound = None,
-            scale = None,
+            scale = new Vector2d(1.0, 1.0),
             tint = None,
             expires = Option(2.0),
             health = None,
@@ -138,7 +138,7 @@ object Entities {
             bounds = new Rectangle(0, 0, width, height),
             sprite = sprite,
             sound = None,
-            scale = None,
+            scale = new Vector2d(1.0, 1.0),
             tint = None,
             expires = None,
             health = None,
@@ -163,7 +163,7 @@ object Entities {
             bounds = new Rectangle(0, 0, width, height),
             sprite = sprite,
             sound = None,
-            scale = None,
+            scale = new Vector2d(1.0, 1.0),
             tint = None,
             expires = None,
             health = None,
@@ -188,7 +188,7 @@ object Entities {
             bounds = new Rectangle(0, 0, width, height),
             sprite = sprite,
             sound = None,
-            scale = None,
+            scale = new Vector2d(1.0, 1.0),
             tint = None,
             expires = None,
             health = None,
@@ -214,7 +214,7 @@ object Entities {
             bounds = new Rectangle(0, 0, width, height),
             sprite = sprite,
             sound = None,
-            scale = None,
+            scale = new Vector2d(1.0, 1.0),
             tint = None,
             expires = None,
             health = None,
@@ -239,7 +239,7 @@ object Entities {
             bounds = new Rectangle(0, 0, width, height),
             sprite = sprite,
             sound = None,
-            scale = None,
+            scale = new Vector2d(1.0, 1.0),
             tint = None,
             expires = None,
             health = None,
@@ -264,7 +264,7 @@ object Entities {
             bounds = new Rectangle(0, 0, width, height),
             sprite = sprite,
             sound = None,
-            scale = None,
+            scale = new Vector2d(1.0, 1.0),
             tint = None,
             expires = None,
             health = None,
@@ -309,20 +309,20 @@ object Entities {
     def explosion(e:Entity, x:Double, y:Double):Entity = {
         e.copy(active = true,
             position = new Point2d(x, y),
+            scale = new Vector2d(0.5, 0.5),
             sound = Some(EffectAsplode),
             scaleTween = Some(new ScaleTween(0.5/100, 0.5, -3, false, true)),
             tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
-            scale = Some(new Vector2d(0.5, 0.5)),
             expires = Some(0.2))
     }
 
     def bang(e:Entity, x:Double, y:Double):Entity = {
         e.copy(active = true,
             position = new Point2d(x, y),
+            scale = new Vector2d(0.2, 0.2),
             sound = Some(EffectSmallAsplode),
             scaleTween = Some(new ScaleTween(0.2/100, 0.2, -3, false, true)),
             tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
-            scale = Some(new Vector2d(0.2, 0.2)),
             expires = Some(0.2))
     }
 
@@ -335,7 +335,7 @@ object Entities {
         val scale = rand.nextInt(10).toDouble / 10.0
         e.copy(active = true,
             position = new Point2d(x, y),
-            scale = Some(new Vector2d(scale, scale)),
+            scale = new Vector2d(scale, scale),
             velocity = Some(new Vector2d(velocityX, velocityY)),
             tint = Some(new Color(0xfa.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xff.toUByte)),
             expires = Some(0.5))

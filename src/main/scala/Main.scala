@@ -34,6 +34,8 @@ object Main {
     var d = 0.toDouble
     var fps = 60
     var k = 0
+    var t = 0.0
+    var k2 = 0
 
     game.start()
     while (game.running) {
@@ -48,8 +50,18 @@ object Main {
         d = 0
       }
       game.handleEvents()
-      game.draw(fps)
+      val m1 = System.nanoTime().toDouble / u
       game.update(delta)
+      val m2 = System.nanoTime().toDouble / u
+      k2 = k2 +1
+      t = t + (m2 - m1)
+      if (k2 >= 1000) {
+        println(s"${t/1000.0}")
+        k2 = 0
+        t = 0.0
+
+      }
+      game.draw(fps)
     }
     SDL_DestroyRenderer(renderer)
     SDL_DestroyWindow(window)

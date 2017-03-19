@@ -22,24 +22,24 @@ class Systems (val game: ShmupWarz) {
     /** 
      * Handle player input
      */
-    def input(delta:Double) (e:Entity):Entity = (e.active, e.category) match {
+    def input(delta:Double) (entity:Entity):Entity = (entity.active, entity.category) match {
         case (true, CategoryPlayer) => 
             val x = game.mouse.x.toDouble
             val y = game.mouse.y.toDouble
             if (game.pressed.contains(KEY_z) || game.mouse.pressed) { // z
                 timeToFire -= delta
                 if (timeToFire < 0.0) {
-                    game.bullets = new Point2d(e.position.x - 27, e.position.y + 2) :: game.bullets
-                    game.bullets = new Point2d(e.position.x + 27, e.position.y + 2) :: game.bullets
+                    game.bullets = new Point2d(entity.position.x - 27, entity.position.y + 2) :: game.bullets
+                    game.bullets = new Point2d(entity.position.x + 27, entity.position.y + 2) :: game.bullets
                     timeToFire = FireRate
                 }
             }
-            e.copy(position=new Point2d(x, y))
+            entity.copy(position=new Point2d(x, y))
         
-        case _ => e
+        case _ => entity
     }
     
-    def sound(delta:Double)(e:Entity):Entity = (e.active, e.sound) match {
+    def sound(delta:Double)(entity:Entity):Entity = (entity.active, entity.sound) match {
         case (true, Some(sound)) => {
             sound match {
                 case EffectPew => Mix_PlayChannel(s1, 0, 0)
@@ -47,48 +47,48 @@ class Systems (val game: ShmupWarz) {
                 case EffectSmallAsplode => Mix_PlayChannel(s3, 0, 0)
                 case _ => ()
             }
-            e
+            entity
         }
-        case _ => e
+        case _ => entity
     }
 
     /**
      * Motion
      */
-    def physics(delta:Double) (e:Entity):Entity = (e.active, e.velocity) match {
+    def physics(delta:Double) (entity:Entity):Entity = (entity.active, entity.velocity) match {
         case (true, Some(velocity)) => 
-            val x = e.position.x + velocity.x * delta
-            val y = e.position.y + velocity.y * delta
-            val x1 = x.toInt
-            val y1 = (y-e.bounds.height/2).toInt
+            val x = entity.position.x + velocity.x * delta
+            val y = entity.position.y + velocity.y * delta
+            val x1 = (x-entity.bounds.width/2).toInt
+            val y1 = (y-entity.bounds.height/2).toInt
 
-            e.copy(
+            entity.copy(
                 position = new Point2d(x, y), 
-                bounds = new Rectangle(x1, y1, e.bounds.width, e.bounds.height))
+                bounds = new Rectangle(x1, y1, entity.bounds.width, entity.bounds.height))
         
-        case _ =>  e
+        case _ =>  entity
     }
     
     /**
      * Expire enities
      */
-    def expire(delta:Double)(e:Entity):Entity = (e.active, e.expires) match {
+    def expire(delta:Double)(entity:Entity):Entity = (entity.active, entity.expires) match {
         case (true, Some(expires)) => 
             val exp = expires - delta
-            e.copy(
+            entity.copy(
                 expires = Some(exp), 
                 active = if (exp > 0.0) true else false)
                 
-        case _ => e
+        case _ => entity
     }
 
     /**
      * Tween 
      */
-    def tween(delta:Double)(e:Entity):Entity = (e.active, e.scaleTween, e.scale) match {
-        case (true, Some(tween), Some(scale)) => {
-            var x = scale.x + (tween.speed * delta)
-            var y = scale.y + (tween.speed * delta)
+    def tween(delta:Double)(entity:Entity):Entity = (entity.active, entity.scaleTween) match {
+        case (true, Some(tween)) => {
+            var x = entity.scale.x + (tween.speed * delta)
+            var y = entity.scale.y + (tween.speed * delta)
             var active = tween.active
 
             if (x > tween.max) {
@@ -100,28 +100,28 @@ class Systems (val game: ShmupWarz) {
                 y = tween.min
                 active = false
             }
-            e.copy(
-                scale = Some(new Vector2d(x, y)), 
+            entity.copy(
+                scale = new Vector2d(x, y), 
                 scaleTween = Some(new ScaleTween(tween.min, tween.max, tween.speed, tween.repeat, active))
                 )
 
         }
-        case _ => e
+        case _ => entity
     }
 
     /**
      * remove offscreen entities
      */
-    def remove(delta:Double)(e:Entity):Entity = (e.active, e.category) match {
+    def remove(delta:Double)(entity:Entity):Entity = (entity.active, entity.category) match {
         case (true, CategoryEnemy) 
-            if (e.position.y > game.height) => {
-                e.copy(active = false)
+            if (entity.position.y > game.height) => {
+                entity.copy(active = false)
         }
         case (true, CategoryBullet) 
-            if (e.position.y < 0) => {
-                e.copy(active = false)
+            if (entity.position.y < 0) => {
+                entity.copy(active = false)
         }
-        case _ => e
+        case _ => entity
     }
 
     /**
@@ -149,78 +149,78 @@ class Systems (val game: ShmupWarz) {
     /**
      * create entities from que
      */
-    def create(delta:Double)(e:Entity):Entity = (e.active, e.actor) match {
+    def create(delta:Double)(entity:Entity):Entity = (entity.active, entity.actor) match {
         case (true, _)  => 
-            val ix = game.deactivate.indexOf(e.id)
+            val ix = game.deactivate.indexOf(entity.id)
             if (ix != -1) {
                 game.deactivate.remove(ix)
-                e.copy(active = false)
-            } else e
+                entity.copy(active = false)
+            } else entity
             
         case (false, ActorBullet) => 
             game.bullets match {
-                case Nil => e
+                case Nil => entity
                 case bullet :: rest =>
                     game.bullets = rest
-                    Entities.bullet(e, bullet.x, bullet.y)
+                    Entities.bullet(entity, bullet.x, bullet.y)
             } 
 
         case (false, ActorEnemy1) => 
             game.enemies1 match {
-                case Nil => e
+                case Nil => entity
                 case enemy :: rest =>
                     game.enemies1 = rest
-                    Entities.enemy1(e, game.width, rand)
+                    Entities.enemy1(entity, game.width, rand)
             }
 
         case (false, ActorEnemy2) => 
             game.enemies2 match {
-                case Nil => e
+                case Nil => entity
                 case enemy :: rest =>
                     game.enemies2 = rest
-                    Entities.enemy2(e, game.width, rand)
+                    Entities.enemy2(entity, game.width, rand)
             }
 
         case (false, ActorEnemy3) => 
             game.enemies3 match {
-                case Nil => e
+                case Nil => entity
                 case enemy :: rest =>
                     game.enemies3 = rest
-                    Entities.enemy3(e, game.width, rand)
+                    Entities.enemy3(entity, game.width, rand)
             }
 
         case (false, ActorExplosion) => 
             game.explosions match {
-                case Nil => e
+                case Nil => entity
                 case explosion :: rest =>
                     game.explosions = rest
-                    Entities.explosion(e, explosion.x, explosion.y)
+                    Entities.explosion(entity, explosion.x, explosion.y)
             }
 
         case (false, ActorBang) => 
             game.bangs match {
-                case Nil => e
+                case Nil => entity
                 case bang :: rest =>
                     game.bangs = rest
-                    Entities.bang(e, bang.x, bang.y)
+                    Entities.bang(entity, bang.x, bang.y)
             }
 
         case (false, ActorParticle) => 
             game.particles match {
-                case Nil => e
+                case Nil => entity
                 case particle :: rest =>
                     game.particles = rest
-                    Entities.particle(e, particle.x, particle.y, rand)
+                    Entities.particle(entity, particle.x, particle.y, rand)
             }
 
-        case _ => e
+        case _ => entity
         
     }
 
     /**
      * Handle collisions
      */
-    def collision(delta:Double)(e:Entity):Entity = {
+    def collision(delta:Double)(entity:Entity):Entity = {
         def intersects(a:Entity, b:Entity):Boolean = {
             val r1 = a.bounds
             val r2 = b.bounds
@@ -248,15 +248,15 @@ class Systems (val game: ShmupWarz) {
             }
         }
 
-        def collide(e:Entity):Entity = {
+        def collide(entity:Entity):Entity = {
             for (bullet <- game.entities) 
                 if (bullet.active && bullet.category == CategoryBullet) 
-                    return if (intersects(e, bullet)) handleCollision(e, bullet) else e
-            e
+                    return if (intersects(entity, bullet)) handleCollision(entity, bullet) else entity
+            entity
         }
-        (e.active, e.category) match {
-            case (true, CategoryEnemy) => collide(e)
-            case _ => e
+        (entity.active, entity.category) match {
+            case (true, CategoryEnemy) => collide(entity)
+            case _ => entity
         }
     }
 

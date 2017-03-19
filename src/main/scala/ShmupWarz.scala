@@ -66,32 +66,19 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
             case _ => ()
           }
       }
-      def drawSprite(x:Int, y:Int, w:Int, h:Int):Unit = {
-          setTint()
-          val rect = stackalloc[Rect].init(x, y, w, h)
-          SDL_RenderCopy(renderer, e.sprite.texture, null, rect) 
-      }
 
       if (e.category == CategoryBackground) {
         setTint()
         SDL_RenderCopy(renderer, e.sprite.texture, null, null) 
       } else {
-        e.scale match {
-          case (Some(scale)) => {
-            val w = (e.sprite.width * scale.x).toInt
-            val h = (e.sprite.height * scale.y).toInt
-            val x = (e.position.x - w / 2).toInt
-            val y = (e.position.y - h / 2).toInt
-            drawSprite(x, y, w, h)
-          }
-          case _ => {
-            val w = e.sprite.width
-            val h = e.sprite.height
-            val x = (e.position.x - w / 2).toInt
-            val y = (e.position.y - h / 2).toInt
-            drawSprite(x, y, w, h)
-          }
-        }
+          val w = (e.sprite.width * e.scale.x).toInt
+          val h = (e.sprite.height * e.scale.y).toInt
+          val x = (e.position.x - w / 2).toInt
+          val y = (e.position.y - h / 2).toInt
+          setTint()
+          val rect = stackalloc[Rect].init(x, y, w, h)
+          SDL_RenderCopy(renderer, e.sprite.texture, null, rect) 
+        
       }
   }
 
@@ -156,5 +143,4 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
         }
       }
   }
-
 }
