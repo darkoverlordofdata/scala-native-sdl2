@@ -51,6 +51,8 @@ object SDL {
   def SDL_RenderPresent(renderer: Renderer): Unit = extern
   def SDL_RenderCopy(renderer: Renderer, texture: Texture, srcrect: Ptr[Rect], dstrect: Ptr[Rect]):Unit = extern
 
+  def SDL_SetTextureColorMod(texture: Texture, r: UByte, g: UByte, b: UByte):Unit = extern
+
   type KeyboardEvent = CStruct8[UInt, UInt, UInt, UByte, UByte, UByte, UByte, Keysym]
   type Keysym = CStruct4[Scancode, Keycode, UShort, UInt]
   type Scancode = Int

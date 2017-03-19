@@ -32,7 +32,23 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
     var pressed = false
   }
   var keycode: Int = 0
-  
+
+  /** message queues */  
+  def removeEntity(id:Int):Unit = deactivate += id
+  def addBullet(x:Double, y:Double):Unit = bullets = new Point2d(x, y) :: bullets
+  def addExplosion(x:Double, y:Double):Unit = explosions = new Point2d(x, y) :: explosions
+  def addBang(x:Double, y:Double):Unit = bangs = new Point2d(x, y) :: bangs
+  def addParticle(x:Double, y:Double):Unit = particles = new Point2d(x, y) :: particles
+  def addEnemy(enemy:Int):Unit = enemy match {
+    case 1 => enemies1 = new Point2d(0,0) :: enemies1
+    case 2 => enemies2 = new Point2d(0,0) :: enemies2
+    case 3 => enemies3 = new Point2d(0,0) :: enemies3
+    case _ => ()
+  }
+
+  /**
+   * Draw frame
+   */
   def draw(fps:Int): Unit = {
       SDL_SetRenderDrawColor(renderer, 0.toUByte, 0.toUByte, 0.toUByte, 255.toUByte)
 		  SDL_RenderClear(renderer)
@@ -49,6 +65,12 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
         val h = if (e.scale.y != 0) (e.sprite.height * e.scale.y).toInt else e.sprite.height
         val x = (e.position.x - w / 2).toInt
         val y = (e.position.y - h / 2).toInt
+        e.tint match {
+          case Some(tint) =>
+              SDL_SetTextureColorMod(e.sprite.texture, tint.r, tint.g, tint.b)
+          case _ =>
+              ()
+        }
         val rect = stackalloc[Rect].init(x, y, w, h)
         SDL_RenderCopy(renderer, e.sprite.texture, null, rect) 
       }
@@ -62,8 +84,10 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
       SDL_RenderCopy(renderer, texture, null, rect)
   }
 
+  /**
+   * Update frame
+   */
   def update(delta:Double): Unit = {
-
       sys.spawn(delta)
       entities = entities
         .map(sys.collision(delta))
@@ -75,14 +99,9 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
         .map(sys.remove(delta))
   }
 
-  def input(delta: Double, e: Entity) {
-      if (e.active && e.category == CategoryPlayer) {
-          e.position.x = mouse.x.toDouble
-          e.position.y = mouse.y.toDouble
-
-      }
-  }  
-
+  /**
+   * Handle Events
+   */
   def handleEvents():Unit = {
     val event = stackalloc[Event]
       while (SDL_PollEvent(event) != 0) {
@@ -117,19 +136,9 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
       }
   }
 
-  def removeEntity(id:Int):Unit = deactivate += id
-  def addBullet(x:Double, y:Double):Unit = bullets = new Point2d(x, y) :: bullets
-  def addExplosion(x:Double, y:Double):Unit = explosions = new Point2d(x, y) :: explosions
-  def addBang(x:Double, y:Double):Unit = bangs = new Point2d(x, y) :: bangs
-  def addParticle(x:Double, y:Double):Unit = particles = new Point2d(x, y) :: particles
-   
-  def addEnemy(enemy:Int):Unit = enemy match {
-    case 1 => enemies1 = new Point2d(0,0) :: enemies1
-    case 2 => enemies2 = new Point2d(0,0) :: enemies2
-    case 3 => enemies3 = new Point2d(0,0) :: enemies3
-    case _ => ()
-  }
-
+  /**
+   * Build the level database
+   */
   def initEntities():List[Entity] = {
     return ArrayBuffer(
         Entities.createBackground(renderer),
@@ -145,7 +154,34 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
         Entities.createEnemy3(renderer),
         Entities.createEnemy3(renderer),
         Entities.createEnemy3(renderer),
-        // Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
+        Entities.createParticle(renderer),
         Entities.createBullet(renderer),
         Entities.createBullet(renderer),
         Entities.createBullet(renderer),

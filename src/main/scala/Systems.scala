@@ -1,10 +1,4 @@
 import scalanative.native._
-import SDL._
-import SDLExtra._
-import SDL_image._
-import SDL_image_extras._
-import scala.annotation.tailrec
-import scala.collection.mutable._
 
 class Systems (val game: ShmupWarz) {
     var rand = new java.util.Random
@@ -13,6 +7,7 @@ class Systems (val game: ShmupWarz) {
     var enemyT3: Double = 13.0
     var FireRate : Double = 0.1
     var timeToFire: Double = 0.0
+    val Tau = 6.28318
 
     rand.setSeed(java.lang.System.nanoTime)
 
@@ -33,8 +28,7 @@ class Systems (val game: ShmupWarz) {
             }
             e.copy(position=new Point2d(x, y))
         
-        case _ => 
-            e
+        case _ => e
     }
     
 
@@ -45,16 +39,14 @@ class Systems (val game: ShmupWarz) {
         case (true, Some(velocity)) => 
             val x = e.position.x + velocity.x * delta
             val y = e.position.y + velocity.y * delta
-
-            val x1 = (x-e.bounds.width/2).toInt
+            val x1 = x.toInt
             val y1 = (y-e.bounds.height/2).toInt
 
             e.copy(
                 position = new Point2d(x, y), 
                 bounds = new Rectangle(x1, y1, e.bounds.width, e.bounds.height))
         
-        case _ => 
-            e
+        case _ =>  e
     }
     
     /**
@@ -65,11 +57,9 @@ class Systems (val game: ShmupWarz) {
             val exp = expires - delta
             e.copy(
                 expires = Some(exp), 
-                active = if (exp > 0.0) true else false
-                )
-        
-        case _ => 
-            e
+                active = if (exp > 0.0) true else false)
+                
+        case _ => e
     }
 
     /**
@@ -157,6 +147,7 @@ class Systems (val game: ShmupWarz) {
                         expires = Some(1), 
                         health = Some(new Health(2, 2)),
                         position = new Point2d(bullet.x, bullet.y),
+                        tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0x00.toUByte, 0xffa.toUByte)),
                         velocity = Some(new Vector2d(0.0, -800.0)))
             } 
 
@@ -205,6 +196,7 @@ class Systems (val game: ShmupWarz) {
                         active = true,
                         position = new Point2d(explosion.x, explosion.y),
                         scaleTween = Some(new ScaleTween(0.5/100, 0.5, -3, false, true)),
+                        tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
                         scale = new Vector2d(0.5, 0.5),
                         expires = Some(0.2))
             }
@@ -218,51 +210,74 @@ class Systems (val game: ShmupWarz) {
                         active = true,
                         position = new Point2d(bang.x, bang.y),
                         scaleTween = Some(new ScaleTween(0.2/100, 0.2, -3, false, true)),
+                        tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
                         scale = new Vector2d(0.2, 0.2),
                         expires = Some(0.2))
+            }
+
+        case (false, ActorParticle) => 
+            val radians = rand.nextDouble() * Tau
+            val magnitude = rand.nextInt(200)
+            val velocityX = magnitude * scala.math.cos(radians)
+            val velocityY = magnitude * scala.math.sin(radians)
+            val scale = rand.nextInt(10).toDouble / 10.0
+            game.particles match {
+                case Nil => e
+                case particle :: rest =>
+                    game.particles = rest
+                    e.copy(
+                        active = true,
+                        position = new Point2d(particle.x, particle.y),
+                        scale = new Vector2d(scale, scale),
+                        velocity = Some(new Vector2d(velocityX, velocityY)),
+                        tint = Some(new Color(0xfa.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xff.toUByte)),
+                        expires = Some(0.5))
             }
 
         case _ => e
         
     }
 
-    def intersects(a:Entity, b:Entity):Boolean = {
-        val r1 = a.bounds
-        val r2 = b.bounds
-        return ((r1.x < r2.x + r2.width) && 
-                (r1.x + r1.width > r2.x) && 
-                (r1.y < r2.y + r2.height) && 
-                (r1.y + r1.height > r2.y)) 
-    }
-
-    def handleCollision(a: Entity, b: Entity):Entity = {
-        game.addBang(b.position.x, b.position.y)
-        game.removeEntity(b.id)
-        a.health match {
-            case Some(health) => {
-                val h = health.current -1
-                if (h < 0) {
-                    game.addExplosion(b.position.x, b.position.y)
-                    return a.copy(active=false)
-                } else {
-                    return a.copy(health=Some(new Health(h, health.maximum)))
-                }   
-            }
-            case _ => a
-        }
-    }
-
-    def collide(e:Entity):Entity = {
-        for (bullet <- game.entities) 
-            if (bullet.active && bullet.category == CategoryBullet) 
-                return if (intersects(e, bullet)) handleCollision(e, bullet) else e
-        e
-    }
     /**
      * Handle collisions
      */
-    def collision(delta:Double)(e:Entity):Entity = (e.active, e.category) match {
-        case (true, CategoryEnemy) => collide(e)
-        case _ => e
+    def collision(delta:Double)(e:Entity):Entity = {
+        def intersects(a:Entity, b:Entity):Boolean = {
+            val r1 = a.bounds
+            val r2 = b.bounds
+            return ((r1.x < r2.x + r2.width) && 
+                    (r1.x + r1.width > r2.x) && 
+                    (r1.y < r2.y + r2.height) && 
+                    (r1.y + r1.height > r2.y)) 
+        }
+
+        def handleCollision(a: Entity, b: Entity):Entity = {
+            game.addBang(b.position.x, b.position.y)
+            game.removeEntity(b.id)
+            for (i <- 0 to 3) game.addParticle(b.position.x, b.position.y)
+            a.health match {
+                case Some(health) => {
+                    val h = health.current -2
+                    if (h < 0) {
+                        game.addExplosion(b.position.x, b.position.y)
+                        return a.copy(active=false)
+                    } else {
+                        return a.copy(health=Some(new Health(h, health.maximum)))
+                    }   
+                }
+                case _ => a
+            }
+        }
+
+        def collide(e:Entity):Entity = {
+            for (bullet <- game.entities) 
+                if (bullet.active && bullet.category == CategoryBullet) 
+                    return if (intersects(e, bullet)) handleCollision(e, bullet) else e
+            e
+        }
+        (e.active, e.category) match {
+            case (true, CategoryEnemy) => collide(e)
+            case _ => e
+        }
     }
 }

@@ -94,7 +94,7 @@ object Entities {
 
     def createBullet(renderer:Renderer):Entity = {
         val img = c"/home/bruce/scala/shmupwarz/assets/images/bullet.png"
-        val width = 5
+        val width = 10
         val height = 17
         val sprite = createSprite(renderer, img, width, height)
 
@@ -244,9 +244,9 @@ object Entities {
 
         return new Entity(
             id = getUniqueId(),
-            name = "Explosion",
+            name = "Particle",
             active = false,
-            actor = ActorBang,
+            actor = ActorParticle,
             category = CategoryExplosion,
             position = new Point2d(0, 0),
             bounds = new Rectangle(0, 0, width, height),

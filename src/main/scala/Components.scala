@@ -39,25 +39,15 @@ case object CategoryParticle extends Category
 case object CategoryPlayer extends Category
 
 
-object Input extends Enumeration {
-    //type Input = Value
-    val None, Left, Right, Jump, Restart, Quit = Value
-}
+sealed trait Effect 
+case object EffectPew extends Effect
+case object EffectAsplode extends Effect
+case object EffectSmallAsplode extends Effect
 
-object Effect extends Enumeration {
-    //type Effect = Value
-    val Pew, Asplode, SmallAsplode = Value
-}
 
 sealed trait Enemies 
 case object Enemy1 extends Enemies
 case object Enemy2 extends Enemies
 case object Enemy3 extends Enemies
 
-sealed trait Timers extends Enumeration {
-    //type Timers = Value
-    val Timer1 = Value(2)
-    val Timer2 = Value(7)
-    val Timer3 = Value(13)
-}
 
