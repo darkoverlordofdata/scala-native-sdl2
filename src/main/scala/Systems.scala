@@ -4,6 +4,7 @@ import SDLExtra._
 import SDL_image._
 import SDL_image_extras._
 import scala.annotation.tailrec
+import scala.collection.mutable._
 
 class Systems (val game: ShmupWarz) {
     var rand = new java.util.Random
@@ -94,7 +95,6 @@ class Systems (val game: ShmupWarz) {
                 scaleTween = Some(new ScaleTween(tween.min, tween.max, tween.speed, tween.repeat, active))
                 )
 
-            e
         }
         case _ => e
     }
@@ -149,6 +149,7 @@ class Systems (val game: ShmupWarz) {
             
         case (false, ActorBullet) => 
             game.bullets match {
+                case Nil => e
                 case bullet :: rest =>
                     game.bullets = rest
                     e.copy(
@@ -157,12 +158,11 @@ class Systems (val game: ShmupWarz) {
                         health = Some(new Health(2, 2)),
                         position = new Point2d(bullet.x, bullet.y),
                         velocity = Some(new Vector2d(0.0, -800.0)))
-                case Nil =>
-                    e
             } 
 
         case (false, ActorEnemy1) => 
             game.enemies1 match {
+                case Nil => e
                 case enemy :: rest =>
                     game.enemies1 = rest
                     e.copy(
@@ -170,12 +170,11 @@ class Systems (val game: ShmupWarz) {
                         position = new Point2d(rand.nextInt(game.width-35).toDouble, 92.0/2.0),
                         velocity = Some(new Vector2d(0.0, 40.0)),
                         health = Some(new Health(10, 10)))
-                case Nil =>
-                    e
             }
 
         case (false, ActorEnemy2) => 
             game.enemies2 match {
+                case Nil => e
                 case enemy :: rest =>
                     game.enemies2 = rest
                     e.copy(
@@ -183,12 +182,11 @@ class Systems (val game: ShmupWarz) {
                         position = new Point2d(rand.nextInt(game.width-86).toDouble, 172.0/2.0),
                         velocity = Some(new Vector2d(0.0, 30.0)),
                         health = Some(new Health(20, 20)))
-                case Nil =>
-                    e
             }
 
         case (false, ActorEnemy3) => 
             game.enemies3 match {
+                case Nil => e
                 case enemy :: rest =>
                     game.enemies3 = rest
                     e.copy(
@@ -196,34 +194,32 @@ class Systems (val game: ShmupWarz) {
                         position = new Point2d(rand.nextInt(game.width-160).toDouble, 320.0/2.0),
                         velocity = Some(new Vector2d(0.0, 20.0)),
                         health = Some(new Health(60, 60)))
-                case Nil =>
-                    e
             }
 
         case (false, ActorExplosion) => 
             game.explosions match {
+                case Nil => e
                 case explosion :: rest =>
                     game.explosions = rest
                     e.copy(
                         active = true,
                         position = new Point2d(explosion.x, explosion.y),
+                        scaleTween = Some(new ScaleTween(0.5/100, 0.5, -3, false, true)),
                         scale = new Vector2d(0.5, 0.5),
                         expires = Some(0.2))
-                case Nil =>
-                    e
             }
 
         case (false, ActorBang) => 
             game.bangs match {
+                case Nil => e
                 case bang :: rest =>
                     game.bangs = rest
                     e.copy(
                         active = true,
                         position = new Point2d(bang.x, bang.y),
+                        scaleTween = Some(new ScaleTween(0.2/100, 0.2, -3, false, true)),
                         scale = new Vector2d(0.2, 0.2),
                         expires = Some(0.2))
-                case Nil =>
-                    e
             }
 
         case _ => e
@@ -239,53 +235,34 @@ class Systems (val game: ShmupWarz) {
                 (r1.y + r1.height > r2.y)) 
     }
 
-    def findCollision(a:Entity, b:Entity):Entity = (a.category, a.active, b.category, b.active) match {
-        case (CategoryEnemy, true, CategoryBullet, true) => {
-            game.addBang(b.position.x, b.position.y)
-            game.removeEntity(b.id)
-            a.health match {
-                case Some(health) => {
-                    val h = health.current -1
-                    if (h < 0) {
-                        game.addExplosion(b.position.x, b.position.y)
-                        return a.copy(active=false)
-                    } else {
-                        return a.copy(health=Some(new Health(h, health.maximum)))
-                    }   
-                }
-                case _ => a
+    def handleCollision(a: Entity, b: Entity):Entity = {
+        game.addBang(b.position.x, b.position.y)
+        game.removeEntity(b.id)
+        a.health match {
+            case Some(health) => {
+                val h = health.current -1
+                if (h < 0) {
+                    game.addExplosion(b.position.x, b.position.y)
+                    return a.copy(active=false)
+                } else {
+                    return a.copy(health=Some(new Health(h, health.maximum)))
+                }   
             }
+            case _ => a
         }
-        case _ => a
     }
 
-    def figureCollisions(e:Entity, sorted:List[Entity]):Entity = sorted match {
-        case x :: xs => {
-            val a = if (intersects(e, x)) findCollision(e, x) else e
-            figureCollisions(a, xs)
-        }
-        case Nil => e
+    def collide(e:Entity):Entity = {
+        for (bullet <- game.entities) 
+            if (bullet.active && bullet.category == CategoryBullet) 
+                return if (intersects(e, bullet)) handleCollision(e, bullet) else e
+        e
     }
-    
     /**
      * Handle collisions
      */
-    def collision(delta:Double, entities:List[Entity]):List[Entity] = {
-
-        @tailrec
-        def fixCollisions(toFix:List[Entity], fixed:List[Entity]):List[Entity] = toFix match {
-            case Nil => fixed
-            case x :: xs => {
-                // val a = figureCollisions(x, fixed)
-                // fixCollisions(xs, a::fixed)
-                fixCollisions(xs, x::fixed)
-            }
-        }
-
-        // entities        
-        fixCollisions(entities, List())
-
+    def collision(delta:Double)(e:Entity):Entity = (e.active, e.category) match {
+        case (true, CategoryEnemy) => collide(e)
+        case _ => e
     }
-
-
 }

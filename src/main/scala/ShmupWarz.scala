@@ -65,7 +65,8 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
   def update(delta:Double): Unit = {
 
       sys.spawn(delta)
-      entities = sys.collision(delta, entities)
+      entities = entities
+        .map(sys.collision(delta))
         .map(sys.create(delta))
         .map(sys.input(delta))
         .map(sys.physics(delta))
@@ -130,7 +131,7 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
   }
 
   def initEntities():List[Entity] = {
-    return List(
+    return ArrayBuffer(
         Entities.createBackground(renderer),
         Entities.createEnemy1(renderer),
         Entities.createEnemy1(renderer),
@@ -178,6 +179,6 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
         Entities.createExplosion(renderer),
         Entities.createExplosion(renderer),
         Entities.createPlayer(renderer)
-    )
+    ).toList
   }
 }
