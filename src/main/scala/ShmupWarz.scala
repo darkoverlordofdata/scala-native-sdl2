@@ -19,12 +19,10 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
   var bangs:List[Point2d] = List()
   var particles:List[Point2d] = List()
   val FONT = c"/home/bruce/scala/shmupwarz/assets/fonts/OpenDyslexic-Bold.otf"
-
-  var entities = initEntities()
-
   var delta = 0.0
   lazy val sys = new Systems(this)
   lazy val font = TTF_OpenFont(FONT, 28)
+  var entities = Entities.createLevel(renderer)
 
   object mouse {
     var x = 0
@@ -153,85 +151,4 @@ class ShmupWarz (val renderer: Renderer, val width:Int, val height:Int)  {
       }
   }
 
-  /**
-   * Build the level database
-   */
-  def initEntities():List[Entity] = {
-    return ArrayBuffer(
-        Entities.createBackground(renderer),
-        Entities.createEnemy1(renderer),
-        Entities.createEnemy1(renderer),
-        Entities.createEnemy1(renderer),
-        Entities.createEnemy1(renderer),
-        Entities.createEnemy2(renderer),
-        Entities.createEnemy2(renderer),
-        Entities.createEnemy2(renderer),
-        Entities.createEnemy2(renderer),
-        Entities.createEnemy3(renderer),
-        Entities.createEnemy3(renderer),
-        Entities.createEnemy3(renderer),
-        Entities.createEnemy3(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createParticle(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBullet(renderer),
-        Entities.createBang(renderer),
-        Entities.createBang(renderer),
-        Entities.createBang(renderer),
-        Entities.createBang(renderer),
-        Entities.createBang(renderer),
-        Entities.createBang(renderer),
-        Entities.createExplosion(renderer),
-        Entities.createExplosion(renderer),
-        Entities.createExplosion(renderer),
-        Entities.createExplosion(renderer),
-        Entities.createExplosion(renderer),
-        Entities.createExplosion(renderer),
-        Entities.createPlayer(renderer)
-    ).toList
-  }
 }

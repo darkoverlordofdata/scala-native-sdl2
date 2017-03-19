@@ -3,6 +3,7 @@ import SDL._
 import SDLExtra._
 import SDL_image._
 import SDL_image_extras._
+import scala.collection.mutable._
 /**
  * Entity database record
  */
@@ -115,15 +116,6 @@ object Entities {
             velocity = None
         )
     }
-    def bullet(e:Entity, x:Double, y:Double):Entity = {
-        e.copy(active = true,
-            expires = Some(1), 
-            health = Some(new Health(2, 2)),
-            position = new Point2d(x, y),
-            tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0x00.toUByte, 0xffa.toUByte)),
-            velocity = Some(new Vector2d(0.0, -800.0)))
-    }
-
     def createEnemy1(renderer:Renderer):Entity = {
         val img = c"/home/bruce/scala/shmupwarz/assets/images/enemy1.png"
         val width = 69
@@ -146,13 +138,6 @@ object Entities {
             scaleTween = None,
             velocity = None
         )
-    }
-
-    def enemy1(e:Entity, width:Int, rand:java.util.Random):Entity = {
-        e.copy(active = true,
-            position = new Point2d(rand.nextInt(width-35).toDouble, 92.0/2.0),
-            velocity = Some(new Vector2d(0.0, 40.0)),
-            health = Some(new Health(10, 10)))
     }
 
     def createEnemy2(renderer:Renderer):Entity = {
@@ -179,13 +164,6 @@ object Entities {
         )
     }
 
-    def enemy2(e:Entity, width:Int, rand:java.util.Random):Entity = {
-        e.copy(active = true,
-            position = new Point2d(rand.nextInt(width-85).toDouble, 172.0/2.0),
-            velocity = Some(new Vector2d(0.0, 30.0)),
-            health = Some(new Health(20, 20)))
-    }
-
     def createEnemy3(renderer:Renderer):Entity = {
         val img = c"/home/bruce/scala/shmupwarz/assets/images/enemy3.png"
         val width = 320
@@ -210,12 +188,6 @@ object Entities {
         )
     }
 
-    def enemy3(e:Entity, width:Int, rand:java.util.Random):Entity = {
-        e.copy(active = true,
-            position = new Point2d(rand.nextInt(width-160).toDouble, 320.0/2.0),
-            velocity = Some(new Vector2d(0.0, 20.0)),
-            health = Some(new Health(60, 60)))
-    }
 
     def createExplosion(renderer:Renderer):Entity = {
         val img = c"/home/bruce/scala/shmupwarz/assets/images/explosion.png"
@@ -239,15 +211,6 @@ object Entities {
             scaleTween = None,
             velocity = None
         )
-    }
-
-    def explosion(e:Entity, x:Double, y:Double):Entity = {
-        e.copy(active = true,
-            position = new Point2d(x, y),
-            scaleTween = Some(new ScaleTween(0.5/100, 0.5, -3, false, true)),
-            tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
-            scale = Some(new Vector2d(0.5, 0.5)),
-            expires = Some(0.2))
     }
 
     def createBang(renderer:Renderer):Entity = {
@@ -274,15 +237,6 @@ object Entities {
         )
     }
 
-    def bang(e:Entity, x:Double, y:Double):Entity = {
-        e.copy(active = true,
-            position = new Point2d(x, y),
-            scaleTween = Some(new ScaleTween(0.2/100, 0.2, -3, false, true)),
-            tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
-            scale = Some(new Vector2d(0.2, 0.2)),
-            expires = Some(0.2))
-    }
-
     def createParticle(renderer:Renderer):Entity = {
         val img = c"/home/bruce/scala/shmupwarz/assets/images/star.png"
         val width = 32
@@ -307,6 +261,56 @@ object Entities {
         )
     }
 
+    /**
+     * Recycle entities from the pool
+     */
+    def bullet(e:Entity, x:Double, y:Double):Entity = {
+        e.copy(active = true,
+            expires = Some(1), 
+            health = Some(new Health(2, 2)),
+            position = new Point2d(x, y),
+            tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0x00.toUByte, 0xffa.toUByte)),
+            velocity = Some(new Vector2d(0.0, -800.0)))
+    }
+
+    def enemy1(e:Entity, width:Int, rand:java.util.Random):Entity = {
+        e.copy(active = true,
+            position = new Point2d(rand.nextInt(width-35).toDouble, 92.0/2.0),
+            velocity = Some(new Vector2d(0.0, 40.0)),
+            health = Some(new Health(10, 10)))
+    }
+
+    def enemy2(e:Entity, width:Int, rand:java.util.Random):Entity = {
+        e.copy(active = true,
+            position = new Point2d(rand.nextInt(width-85).toDouble, 172.0/2.0),
+            velocity = Some(new Vector2d(0.0, 30.0)),
+            health = Some(new Health(20, 20)))
+    }
+
+    def enemy3(e:Entity, width:Int, rand:java.util.Random):Entity = {
+        e.copy(active = true,
+            position = new Point2d(rand.nextInt(width-160).toDouble, 320.0/2.0),
+            velocity = Some(new Vector2d(0.0, 20.0)),
+            health = Some(new Health(60, 60)))
+    }
+    def explosion(e:Entity, x:Double, y:Double):Entity = {
+        e.copy(active = true,
+            position = new Point2d(x, y),
+            scaleTween = Some(new ScaleTween(0.5/100, 0.5, -3, false, true)),
+            tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
+            scale = Some(new Vector2d(0.5, 0.5)),
+            expires = Some(0.2))
+    }
+
+    def bang(e:Entity, x:Double, y:Double):Entity = {
+        e.copy(active = true,
+            position = new Point2d(x, y),
+            scaleTween = Some(new ScaleTween(0.2/100, 0.2, -3, false, true)),
+            tint = Some(new Color(0xd2.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xfa.toUByte)),
+            scale = Some(new Vector2d(0.2, 0.2)),
+            expires = Some(0.2))
+    }
+
     def particle(e:Entity, x:Double, y:Double, rand:java.util.Random):Entity = {
         val Tau = 6.28318
         val radians = rand.nextDouble() * Tau
@@ -321,4 +325,88 @@ object Entities {
             tint = Some(new Color(0xfa.toUByte, 0xfa.toUByte, 0xd2.toUByte, 0xff.toUByte)),
             expires = Some(0.5))
     }
+
+  /**
+   * Create the level database pool
+   */
+  def createLevel(renderer:Renderer):List[Entity] = {
+    return ArrayBuffer(
+        createBackground(renderer),
+        createEnemy1(renderer),
+        createEnemy1(renderer),
+        createEnemy1(renderer),
+        createEnemy1(renderer),
+        createEnemy2(renderer),
+        createEnemy2(renderer),
+        createEnemy2(renderer),
+        createEnemy2(renderer),
+        createEnemy3(renderer),
+        createEnemy3(renderer),
+        createEnemy3(renderer),
+        createEnemy3(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createParticle(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBullet(renderer),
+        createBang(renderer),
+        createBang(renderer),
+        createBang(renderer),
+        createBang(renderer),
+        createBang(renderer),
+        createBang(renderer),
+        createExplosion(renderer),
+        createExplosion(renderer),
+        createExplosion(renderer),
+        createExplosion(renderer),
+        createExplosion(renderer),
+        createExplosion(renderer),
+        createPlayer(renderer)
+    ).to[List]
+  }
+
+
 }
