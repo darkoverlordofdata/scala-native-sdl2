@@ -1,5 +1,6 @@
 import scalanative.native._
-import SDL._
+import sdl2.SDL._
+import sdl2.Extras._
 
 /**
  * Components
@@ -9,7 +10,7 @@ abstract class Component
 final case class Color(r:UByte, g:UByte, b:UByte, a:UByte) extends Component
 final case class Health(current:Int, maximum:Int) extends Component
 final case class ScaleTween(min:Double, max:Double, speed:Double, repeat:Boolean, active:Boolean) extends Component
-final case class Sprite(texture:Texture, width: Int, height: Int) extends Component
+final case class Sprite(texture:Ptr[SDL_Texture], width: Int, height: Int) extends Component
 final case class Rectangle(var x:Int, var y:Int, var width:Int, var height:Int) extends Component
 final case class Point2d(var x:Double, var y:Double) extends Component
 final case class Vector2d(var x:Double, var y:Double) extends Component

@@ -1,21 +1,21 @@
 import scalanative.native._
-import SDL._
-import SDLExtra._
-import SDL_mixer._
-import SDL_mixer_extras._
+import sdl2.SDL._
+import sdl2.Extras._
+import sdl2.image.SDL_image._
+import sdl2.ttf.SDL_ttf._
 
 class Systems (val game: ShmupWarz) {
     var rand = new java.util.Random
     var enemyT1: Double = 2.0
     var enemyT2: Double = 7.0
     var enemyT3: Double = 13.0
-    var FireRate : Double = 0.1
+    var FireRate: Double = 0.1
     var timeToFire: Double = 0.0
     val Tau = 6.28318
 
-    val s1 = Mix_LoadWAV(c"/home/bruce/scala/shmupwarz/assets/sounds/pew.wav")
-    val s2 = Mix_LoadWAV(c"/home/bruce/scala/shmupwarz/assets/sounds/asplode.wav")
-    val s3 = Mix_LoadWAV(c"/home/bruce/scala/shmupwarz/assets/sounds/smallasplode.wav")
+    // val s1 = Mix_LoadWAV(c"assets/sounds/pew.wav")
+    // val s2 = Mix_LoadWAV(c"assets/sounds/asplode.wav")
+    // val s3 = Mix_LoadWAV(c"assets/sounds/smallasplode.wav")
 
     rand.setSeed(java.lang.System.nanoTime)
 
@@ -26,7 +26,7 @@ class Systems (val game: ShmupWarz) {
         case (true, CategoryPlayer) => 
             val x = game.mouse.x.toDouble
             val y = game.mouse.y.toDouble
-            if (game.pressed.contains(KEY_z) || game.mouse.pressed) { // z
+            if (game.pressed.contains(SDLK_z) || game.mouse.pressed) { // z
                 timeToFire -= delta
                 if (timeToFire < 0.0) {
                     game.bullets = new Point2d(entity.position.x - 27, entity.position.y + 2) :: game.bullets
@@ -39,18 +39,19 @@ class Systems (val game: ShmupWarz) {
         case _ => entity
     }
     
-    def sound(delta:Double)(entity:Entity):Entity = (entity.active, entity.sound) match {
-        case (true, Some(sound)) => {
-            sound match {
-                case EffectPew => Mix_PlayChannel(s1, 0, 0)
-                case EffectAsplode => Mix_PlayChannel(s2, 0, 0)
-                case EffectSmallAsplode => Mix_PlayChannel(s3, 0, 0)
-                case _ => ()
-            }
-            entity
-        }
-        case _ => entity
-    }
+    def sound(delta:Double)(entity:Entity):Entity = entity
+    //  (entity.active, entity.sound) match {
+        // case (true, Some(sound)) => {
+        //     sound match {
+        //         case EffectPew => Mix_PlayChannel(s1, 0, 0)
+        //         case EffectAsplode => Mix_PlayChannel(s2, 0, 0)
+        //         case EffectSmallAsplode => Mix_PlayChannel(s3, 0, 0)
+        //         case _ => ()
+        //     }
+        //     entity
+        // }
+        // case _ => entity
+    // }
 
     /**
      * Motion

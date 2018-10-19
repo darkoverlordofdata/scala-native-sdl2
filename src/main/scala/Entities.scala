@@ -1,8 +1,7 @@
 import scalanative.native._
-import SDL._
-import SDLExtra._
-import SDL_image._
-import SDL_image_extras._
+import sdl2.SDL._
+import sdl2.Extras._
+import sdl2.image.SDL_image._
 import scala.collection.mutable._
 /**
  * Entity database record
@@ -35,8 +34,8 @@ object Entities {
         uniqueId
     }
     
-    def createSprite(renderer:Renderer, path:CString, width:Int, height:Int):Sprite = {
-        val surface:Surface = IMG_Load(path)
+    def createSprite(renderer:Ptr[SDL_Renderer], path:CString, width:Int, height:Int):Sprite = {
+        val surface:Ptr[SDL_Surface] = IMG_Load(path)
         if (surface == null) {
             println("unable to load surface")
         }
@@ -44,12 +43,12 @@ object Entities {
         if (sprite.texture == null) {
             println("unable to load texture")
         }
-        SDL_SetTextureBlendMode(sprite.texture, SDL_BLENDMODE_BLEND)
+        // SDL_SetTextureBlendMod(sprite.texture, SDL_BLENDMODE_BLEND)
         return sprite
     }
 
-    def createBackground(renderer:Renderer):Entity = {
-        val img = c"/home/bruce/scala/shmupwarz/assets/images/BackdropBlackLittleSparkBlack.png"
+    def createBackground(renderer:Ptr[SDL_Renderer]):Entity = {
+        val img = c"assets/images/BackdropBlackLittleSparkBlack.png"
         val width = 512
         val height = 512
         val sprite = createSprite(renderer, img, width, height)
@@ -73,8 +72,8 @@ object Entities {
         )
     }
 
-    def createPlayer(renderer:Renderer):Entity = {
-        val img = c"/home/bruce/scala/shmupwarz/assets/images/fighter.png"
+    def createPlayer(renderer:Ptr[SDL_Renderer]):Entity = {
+        val img = c"assets/images/fighter.png"
         val width = 108
         val height = 172
         val sprite = createSprite(renderer, img, width, height)
@@ -98,8 +97,8 @@ object Entities {
         )
     }
 
-    def createBullet(renderer:Renderer):Entity = {
-        val img = c"/home/bruce/scala/shmupwarz/assets/images/bullet.png"
+    def createBullet(renderer:Ptr[SDL_Renderer]):Entity = {
+        val img = c"assets/images/bullet.png"
         val width = 5
         val height = 17
         val sprite = createSprite(renderer, img, width, height)
@@ -122,8 +121,8 @@ object Entities {
             velocity = None
         )
     }
-    def createEnemy1(renderer:Renderer):Entity = {
-        val img = c"/home/bruce/scala/shmupwarz/assets/images/enemy1.png"
+    def createEnemy1(renderer:Ptr[SDL_Renderer]):Entity = {
+        val img = c"assets/images/enemy1.png"
         val width = 69
         val height = 91
         val sprite = createSprite(renderer, img, width, height)
@@ -147,8 +146,8 @@ object Entities {
         )
     }
 
-    def createEnemy2(renderer:Renderer):Entity = {
-        val img = c"/home/bruce/scala/shmupwarz/assets/images/enemy2.png"
+    def createEnemy2(renderer:Ptr[SDL_Renderer]):Entity = {
+        val img = c"assets/images/enemy2.png"
         val width = 172
         val height = 172
         val sprite = createSprite(renderer, img, width, height)
@@ -172,8 +171,8 @@ object Entities {
         )
     }
 
-    def createEnemy3(renderer:Renderer):Entity = {
-        val img = c"/home/bruce/scala/shmupwarz/assets/images/enemy3.png"
+    def createEnemy3(renderer:Ptr[SDL_Renderer]):Entity = {
+        val img = c"assets/images/enemy3.png"
         val width = 320
         val height = 320
         val sprite = createSprite(renderer, img, width, height)
@@ -198,8 +197,8 @@ object Entities {
     }
 
 
-    def createExplosion(renderer:Renderer):Entity = {
-        val img = c"/home/bruce/scala/shmupwarz/assets/images/explosion.png"
+    def createExplosion(renderer:Ptr[SDL_Renderer]):Entity = {
+        val img = c"assets/images/explosion.png"
         val width = 512
         val height = 512
         val sprite = createSprite(renderer, img, width, height)
@@ -223,8 +222,8 @@ object Entities {
         )
     }
 
-    def createBang(renderer:Renderer):Entity = {
-        val img = c"/home/bruce/scala/shmupwarz/assets/images/explosion.png"
+    def createBang(renderer:Ptr[SDL_Renderer]):Entity = {
+        val img = c"assets/images/explosion.png"
         val width = 512
         val height = 512
         val sprite = createSprite(renderer, img, width, height)
@@ -248,8 +247,8 @@ object Entities {
         )
     }
 
-    def createParticle(renderer:Renderer):Entity = {
-        val img = c"/home/bruce/scala/shmupwarz/assets/images/star.png"
+    def createParticle(renderer:Ptr[SDL_Renderer]):Entity = {
+        val img = c"assets/images/star.png"
         val width = 32
         val height = 32
         val sprite = createSprite(renderer, img, width, height)
@@ -344,7 +343,7 @@ object Entities {
   /**
    * Create the level database pool
    */
-  def createLevel(renderer:Renderer):List[Entity] = {
+  def createLevel(renderer:Ptr[SDL_Renderer]):List[Entity] = {
     return ArrayBuffer(
         createBackground(renderer),
         createEnemy1(renderer),
