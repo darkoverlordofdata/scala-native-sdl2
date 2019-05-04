@@ -3,11 +3,22 @@
     "configurations": [
         {
             "name": "Debug",
-            "type": "lldb",
+            "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/target/scala-2.11/example-out",
-            "args": [""]
+            "args": [""],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:\\msys64\\mingw64\\bin\\gdb.exe",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+
         }
     ]
 }

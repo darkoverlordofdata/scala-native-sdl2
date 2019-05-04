@@ -28,11 +28,18 @@ scala-jvm   0.008185
 
 switched to new bindings https://github.com/regb/scalanative-graphics-bindings
 
+install an XServer - I'm using X410, and have also tried Xming.
 
+add to .bashrc
+    
+```        
+export DISPLAY=127.0.0.1:0.0
+```
 
-error: XDG_RUNTIME_DIR not set in the environment.
-    SDL could not initialize! SDL Error: ${SDL_GetError()}
+on boot:
+$ xhost +127.0.0.1
 
-    install an XServer (X410, Xming, ...)
-    DISPLAY=:0.0 ; export DISPLAY
-    xhost +
+run app in wsl shell (ctrl-`)
+```bash
+$ target/scala-2.11/example-out
+```

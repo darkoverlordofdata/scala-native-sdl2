@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /mnt/c/Users/darko/Documents/GitHub/scala-native-sdl2
+/mnt/c/Users/darko/Documents/GitHub/scala-native-sdl2/target/scala-2.11/example-out
