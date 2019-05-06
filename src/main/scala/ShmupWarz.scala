@@ -54,7 +54,7 @@ class ShmupWarz (val renderer: Ptr[SDL_Renderer], val width:Int, val height:Int)
       SDL_SetRenderDrawColor(renderer, 0.toUByte, 0.toUByte, 0.toUByte, 255.toUByte)
 		  SDL_RenderClear(renderer)
       entities.filter(_.active).map(drawEntity)
-      drawFps(fps)
+    //   drawFps(fps)
       SDL_RenderPresent(renderer)
   }
 
@@ -81,12 +81,13 @@ class ShmupWarz (val renderer: Ptr[SDL_Renderer], val width:Int, val height:Int)
   }
 
   def drawFps(fps:Int):Unit = {
-      // val msg: CString = c"$fps"
-      // val text = TTF_RenderUTF8_Solid(font, msg, 0xffffff00)
-      // val texture = SDL_CreateTextureFromSurface(renderer, text)
-      // SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND)
-      // val rect = stackalloc[Rect].init(5, 5, 56, 28)
-      // SDL_RenderCopy(renderer, texture, null, rect)
+      val msg: CString = c"fps"
+      val tint: UInt = 0xffffff00.toUInt
+      val text = TTF_RenderUTF8_Solid(font, msg, tint)
+      val texture = SDL_CreateTextureFromSurface(renderer, text)
+    //   SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND)
+      val rect = stackalloc[SDL_Rect].init(5, 5, 56, 28)
+      SDL_RenderCopy(renderer, texture, null, rect)
   }
 
   /**

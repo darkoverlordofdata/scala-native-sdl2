@@ -10,34 +10,33 @@ a frame is the current state of the entity database
 
 each frame, the database is transformed by a map reduce style pipline into a new state.
 
-
-
 ### Performance
-similar to fsharp:
 
+I track the average amount of time per frame to perform update and draw
 
-avg per frame
-nativescala 0.001558
-fsharp      0.001651
-ooc         0.002586
-nim         0.003331	
-vala	    0.003586	
-scala-jvm   0.008185	
+If that goes over 100% the animation will stutter. Sooner, actually. So anything under 50% is good.
 
-#### Windows 10 / WLS
+c++     ??
+s/n     0.001200s - 13.88%
+k/n     ??
+f#      ??
+
+#### VSCode Plugins
+* Scala (Metals) - https://github.com/scalameta/metals-vscode
+* Scala Syntax (official) - https://github.com/scala/vscode-scala-syntax
+
 
 switched to new bindings https://github.com/regb/scalanative-graphics-bindings
 
-install an XServer - I'm using X410, and have also tried Xming.
+#### Windows 10 / WLS
 
-add to .bashrc
-    
-```        
-export DISPLAY=127.0.0.1:0.0
+install an XServer such as X410 or Xming.
+
+add to .xinitrc:
 ```
-
-on boot:
-$ xhost +127.0.0.1
+export DISPLAY=127.0.0.1:0.0
+xhost +
+```
 
 run app in wsl shell (ctrl-`)
 ```bash

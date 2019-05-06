@@ -20,8 +20,10 @@ object Main {
         // }
 
         val title  = c"ShmupWarz"
-        val width  = (320*1.5).toInt
-        val height = (480*1.5).toInt
+        // val width  = (320*1.5).toInt
+        // val height = (480*1.5).toInt
+        val width  = (640).toInt
+        val height = (512).toInt
         val window: Ptr[SDL_Window] = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN)
         val renderer: Ptr[SDL_Renderer] = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC)
         val game = new ShmupWarz(renderer, width, height)
