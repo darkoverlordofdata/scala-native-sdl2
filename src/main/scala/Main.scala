@@ -22,8 +22,8 @@ object Main {
         val title  = c"ShmupWarz"
         // val width  = (320*1.5).toInt
         // val height = (480*1.5).toInt
-        val width  = (640).toInt
-        val height = (512).toInt
+        val width  = (640*1.5).toInt
+        val height = (512*1.5).toInt
         val window: Ptr[SDL_Window] = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN)
         val renderer: Ptr[SDL_Renderer] = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC)
         val game = new ShmupWarz(renderer, width, height)
@@ -56,7 +56,8 @@ object Main {
             k2 = k2 +1
             t = t + (m2 - m1)
             if (k2 >= 1000) {
-                println(s"${t/1000.0}")
+                // println(s"${t/1000.0}")
+                println(s"${t}")
                 k2 = 0
                 t = 0.0
             }

@@ -16,10 +16,15 @@ I track the average amount of time per frame to perform update and draw
 
 If that goes over 100% the animation will stutter. Sooner, actually. So anything under 50% is good.
 
+
+        unstressed                  stressed
+
 c++     ??
-s/n     0.001200s - 13.88%
-k/n     ??
+s/n     0.0002323s  -  1.39%        0.0011268s     -  7.9%
+k/n     0.0022246s  - 13.35%        0.0021262s     - 13.28%
 f#      ??
+
+
 
 #### VSCode Plugins
 * Scala (Metals) - https://github.com/scalameta/metals-vscode
@@ -42,3 +47,12 @@ run app in wsl shell (ctrl-`)
 ```bash
 $ target/scala-2.11/example-out
 ```
+
+
+
+1.6390931606292725
+2.1621570587158203
+2.2136030197143555
+2.2756989002227783
+2.244440793991089
+2.2226333618164063

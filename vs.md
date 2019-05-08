@@ -41,3 +41,21 @@ gdb is relaitively useless for debugging scala-native in VSCode.
 scala-native runs in wsl, so there is no communication between ide and debugger
 
 when kotlin-native crashes, so does gdb, so it's about even.
+
+## performance 
+I'm averaging the time spent in game.update() per frame.
+Scala seems about 10X faster, however both are well below 50% of the frame.
+
+Under stress (shooting lots of ships), scala slows down, but is still about 2x the speed
+of kotlin. 
+Due to the way that presents, I think this is due to gc.
+Kotlin scales better, and has negligible slowdown. 
+Tuning the kotlin algorythm could probably move the needle on that 2x to a 1x
+
+## decision
+So - Kotlin:
+
+    scales better
+    more platforms
+    auto-bindings
+
